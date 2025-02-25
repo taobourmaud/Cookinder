@@ -5,6 +5,7 @@ import { AuthContext, AuthProvider } from './authContext';
 import HomeScreen from './screens/home.screen';
 import SignInScreen from './screens/signIn.screen';
 import SignUpScreen from './screens/signUp.screen';
+import RecipeScreen from "./screens/recipe.screen";
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -29,7 +30,10 @@ const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <>
+            <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <Stack.Screen name="RecipeScreen" component={RecipeScreen} />
+          </>
       ) : (
         <>
           <Stack.Screen name="SignIn" component={SignInScreen} />

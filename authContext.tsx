@@ -1,9 +1,11 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {supabase} from "./supabase";
 
 interface AuthContextType {
   isLoggedIn: boolean;
   loading: boolean;
+  userId: string | null;
   signIn: (token: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -17,6 +19,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -29,6 +32,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (token: string) => {
     await AsyncStorage.setItem('userToken', token);
+    const { data } = await supabase.auth.getSession();
+    if (data?.session?.user?.id) {
+      setUserId(data.session.user.id);
+    } else {
+      setUserId(null);
+    }
     setIsLoggedIn(true);
   };
 
@@ -38,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ isLoggedIn, loading, userId, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
