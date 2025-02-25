@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, ImageBackground} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { supabase } from '../supabase';
-import { AuthContext } from '../authContext';
-import { RootStackParamList } from '../App';
+import { supabase } from '../../supabase';
+import { AuthContext } from '../../authContext';
+import { RootStackParamList } from '../../App';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
@@ -41,7 +41,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
   return (
     <ImageBackground 
-          source={require('../assets/background.png')} 
+          source={require('../../assets/images/background.png')} 
           style={styles.background}
           resizeMode="cover"
         >
