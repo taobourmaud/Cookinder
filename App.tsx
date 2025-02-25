@@ -1,32 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { supabase } from './supabase';
+import React, { useContext } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { AuthContext, AuthProvider } from './authContext';
+import HomeScreen from './screens/home.screen';
+import SignInScreen from './screens/signIn.screen';
+import SignUpScreen from './screens/signUp.screen';
 
-export default function App() {
+export type RootStackParamList = {
+  HomeScreen: undefined;
+  SignIn: undefined;
+  SignUp: undefined;
+};
 
+const Stack = createStackNavigator<RootStackParamList>();
 
-  async function testSupabase() {
-    const { data, error } = await supabase
-      .from('test')
-      .select('*') 
-    console.log(data)
+const AppNavigator: React.FC = () => {
+
+  const auth = useContext(AuthContext);
+
+  if (!auth) return null; 
+
+  const { isLoggedIn, loading } = auth;
+
+  if (loading) {
+    return null; 
   }
 
-  testSupabase()
-
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isLoggedIn ? (
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      ) : (
+        <>
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      )}
+    </Stack.Navigator>
   );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+};
+
+export default App;
+function useFonts(arg0: { MyFont: any; }): [any] {
+  throw new Error('Function not implemented.');
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
