@@ -149,6 +149,28 @@ const ProfileScreen = () => {
           </View>
         </View>
       </View>
+      <View style={styles.recipeCreated}>
+        <View style={styles.recipeContainer}>
+        {/* TODO Choper tous les likes reçus par l'utilisateur */}
+          <Image
+            style={styles.recipeImage}
+            source={require("../../assets/images/like.png")}
+          />
+            <Text style={styles.recipeText}>Like reçus : 20</Text>
+        </View>
+      </View>
+      <View style={styles.recipeCreated}>
+        <View style={styles.recipeContainer}>
+          <Image
+            style={styles.recipeImage}
+            source={require("../../assets/images/recipe.png")}
+          />
+          {/* TODO Rediriger vers toutes les recettes crées par l'utilisateur */}
+          <TouchableOpacity>          
+            <Text style={styles.recipeText}>Recettes créées</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={signOut}>
           <Text style={styles.buttonText}>Déconnexion</Text>
@@ -162,7 +184,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff'
   },
@@ -223,6 +244,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Montserrat',
   },
+  recipeCreated: {
+    backgroundColor: "#F4F5FF",
+    marginTop: 20,
+    width: 350, 
+    height: 50,
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  recipeImage: {
+    width: 30,
+    height: 30,
+  },
+  recipeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  recipeText: {
+    marginLeft: 10,
+    fontFamily: 'Montserrat',
+    color: '#000',
+    fontSize: 16,
+  },
+
 })
 
 export default ProfileScreen

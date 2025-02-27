@@ -82,8 +82,7 @@ const TabNavigator: React.FC = () => {
               <Image
                 source={require("./assets/images/like.png")}
                 style={[
-                  styles.icon,
-                  { tintColor: focused ? "#FFF" : "#000" }
+                  { tintColor: focused ? "#FFF" : "#000" },                  
                 ]}
               />
             </View>
