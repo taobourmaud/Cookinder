@@ -10,6 +10,8 @@ type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  
   const [loading, setLoading] = useState<boolean>(false);
   const auth = useContext(AuthContext);
 
@@ -22,6 +24,11 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data:{
+          displayName: username,
+        } 
+      }
     });
 
     if (error) {
@@ -29,10 +36,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
     } else {
       if (data.session) {
         await signIn(data.session.access_token);
-        alert('Account created and logged in!');
       } else {
-        alert('Check your email to confirm your account.');
-        navigation.navigate('SignIn'); // Redirige l'utilisateur vers la connexion s'il doit valider son email
+        navigation.navigate('SignIn'); 
       }
     }
 
@@ -64,6 +69,14 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
                 placeholderTextColor="#fff"
                 autoCapitalize="none"
                 secureTextEntry
+              />
+              <TextInput
+                style={styles.input}
+                onChangeText={setUsername}
+                value={username}
+                placeholder="Nom d'utilisateur"
+                placeholderTextColor="#fff"
+                autoCapitalize="none"
               />
               {loading ? (
                 <ActivityIndicator size="large" color="#fff" />

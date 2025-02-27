@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthContext } from '../../authContext';
 import { useContext } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
 export default function HomeScreen() {

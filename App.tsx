@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,6 +11,9 @@ import ProfileScreen from './screens/tabs/profile.screen';
 import CreateRecipeScreen from './screens/tabs/create-recipe.screen';
 import SCREENS from './screens';
 import LikeRecipeScreen from './screens/tabs/like-recipe.screen';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -18,10 +21,14 @@ export type RootStackParamList = {
   SignUp: undefined;
 };
 
+SplashScreen.preventAutoHideAsync();
+
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC = () => {
+
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -136,6 +143,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopWidth: 0,
     elevation: 10,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 13,
   },
   iconContainer: {
     marginTop: 35,
@@ -160,10 +175,29 @@ const styles = StyleSheet.create({
 });
 
 const App: React.FC = () => {
+
+  const [fontsLoaded, error] = useFonts({
+    'Montserrat': require('./assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf'),
+    'Montserrat-Italic': require('./assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf'),
+    'Montserrat-Light': require('./assets/fonts/Montserrat/static/Montserrat-Light.ttf'),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null; 
+  }
+  
   return (
     <AuthProvider>
       <NavigationContainer>
-        <AppNavigator />
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <AppNavigator />
+        </View>
       </NavigationContainer>
     </AuthProvider>
   );
