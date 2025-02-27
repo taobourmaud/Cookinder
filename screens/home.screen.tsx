@@ -14,7 +14,7 @@ export default function HomeScreen() {
   const { signOut } = auth;
 
     const goToRecette = () => {
-        navigation.navigate('RecipeScreen');
+        navigation.navigate('DishesScreen');
     };
   
  return (
