@@ -11,6 +11,7 @@ export default function DishesScreen({ navigation }) {
     const [dishes, setDishes] = useState([]);
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
+    const [userDishCreated, setUserDishCreated] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,8 +26,8 @@ export default function DishesScreen({ navigation }) {
 
                 for (let dish of data) {
                     dishLikesCount[dish.dishes.id] = await getNumberOfLikesDish(dish.dishes.id);
-
                     dishTagsCount[dish.dishes.id] = await getTagsOfDish(dish.dishes.id);
+                    setUserDishCreated(dish.dishes.username);
                 }
                 setLikesCount(dishLikesCount);
                 setTagsCount(dishTagsCount);
@@ -41,8 +42,14 @@ export default function DishesScreen({ navigation }) {
 
     return (
             <View style={styles.container}>
-                <Text style={styles.header}>{userDisplayName}, voici tes plats préférées !</Text>
-                <Text style={styles.subHeader}>Consulte les plats que tu as enregistrées !</Text>
+                <View style={styles.header}>
+                    <Image
+                        source={require('../assets/COOKINDER.png')}
+                        style={styles.logoImage}
+                    />
+                </View>
+                <Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
+                <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
                 <FlatList
                     data={dishes}
                     keyExtractor={(item) => item.id.toString()}
@@ -54,10 +61,7 @@ export default function DishesScreen({ navigation }) {
                         return (
                             <TouchableOpacity
                                 style={styles.card}
-                                onPress={() => {
-                                    console.log(dishId);
-                                    navigation.navigate('DishDetailsScreen', { dishId, userData});
-                                }}
+                                onPress={() => { navigation.navigate('DishDetailsScreen', { dishId, userData, tagsForDish});}}
                             >
                                 <View style={styles.card}>
                                     <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
@@ -65,6 +69,7 @@ export default function DishesScreen({ navigation }) {
                                         <Text style={styles.title}>{item.dishes.title}</Text>
                                         <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
                                         <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
+                                        <Text style={styles.info}>Créé par : {userDishCreated}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -82,35 +87,45 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     header: {
+        flexDirection: 'row',
+        paddingVertical: 10,
+    },
+    logoImage: {
+        width: 120,
+        height: 40,
+        resizeMode: 'contain',
+        marginLeft: 'auto',
+    },
+    headerDisplayName: {
         fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 5,
+        marginBottom: 20,
+        paddingLeft: 10,
     },
     subHeader: {
         fontSize: 16,
         color: '#666',
-        marginBottom: 20,
+        marginBottom: 15,
+        paddingLeft: 10,
     },
     card: {
         flexDirection: 'row',
         backgroundColor: '#f0f0ff',
+        padding: 5,
+        marginBottom: 10,
         borderRadius: 15,
-        padding: 10,
-        marginBottom: 15,
-        alignItems: 'center',
     },
     image: {
-        width: 60,
-        height: 60,
+        width: 80,
+        height: 80,
         borderRadius: 10,
         backgroundColor: '#ccc',
     },
-    info: {
-        marginLeft: 10,
-        flex: 1,
-    },
     title: {
+        marginLeft: 10,
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    info: {
+        marginLeft: 10,
     }
 });

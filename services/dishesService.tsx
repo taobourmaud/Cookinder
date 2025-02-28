@@ -20,7 +20,9 @@ export const getLikedDishesByUser = async (userId) => {
                         title
                     ),
                     image_url,
-                    created_at
+                    created_at,
+                    user_id,
+                    username
                 )
             `)
             .eq('user_id', userId);
