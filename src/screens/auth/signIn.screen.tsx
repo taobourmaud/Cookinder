@@ -9,9 +9,9 @@ import {
   ImageBackground 
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { supabase } from '../../supabase';
-import { RootStackParamList } from '../../App';
-import { AuthContext } from '../../authContext';
+import { supabase } from '../../../supabase';
+import { RootStackParamList } from '../../../App';
+import { AuthContext } from '../../../authContext';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -40,7 +40,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation }) => {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/background.png')} 
+      source={require('../../../assets/images/background.png')} 
       style={styles.background}
       resizeMode="cover"
     >

@@ -1,10 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
 import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { AuthContext } from '../../authContext';
-import { DishesModel } from '../_utils/models/dishes';
-import { MySwipper } from '../_utils/components/swipper';
-import { TagsModel } from '../_utils/models/tags';
+import { AuthContext } from '../../../authContext';
+import { DishesModel } from '../../_utils/models/dishes';
+import { MySwipper } from '../../_utils/components/swipper';
+import { TagsModel } from '../../_utils/models/tags';
 
 
 export default function HomeScreen({route} : {route : any}) {
