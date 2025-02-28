@@ -2,9 +2,9 @@ import { supabase } from "../supabase"
 
 async function seeders() {
   try {
-    const existedDishes = await supabase.from('dishes').select()
-    if (!existedDishes.count || (existedDishes.count && existedDishes.count < 10)) {
-      const ids: string[] | undefined = existedDishes.data?.map(data => data?.id)
+    const { data } = await supabase.from('dishes').select()
+    if (!data || (data.length && data.length < 10)) {
+      const ids: string[] | undefined = data?.map(data => data?.id)
       if (ids) {
         await supabase.from('dishes').delete().in('id', ids)
       }

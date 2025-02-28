@@ -11,6 +11,8 @@ import ProfileScreen from './screens/tabs/profile.screen';
 import CreateRecipeScreen from './screens/tabs/create-recipe.screen';
 import SCREENS from './screens';
 import LikeRecipeScreen from './screens/tabs/like-recipe.screen';
+import ApiHandler  from './screens/_utils/api/apiHandler';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -20,88 +22,93 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
+const queryClient = new QueryClient()
 
 const TabNavigator: React.FC = () => {
+  const apiHandler = new ApiHandler();
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
-      }}
-    >
-      <Tab.Screen
-        name={SCREENS.HOME}
-        component={HomeScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
-              <Image
-                source={require("./assets/images/home.png")}
-                style={[
-                  styles.icon,
-                  { tintColor: focused ? "#FFF" : "#000" }
-                ]}
-              />
-            </View>
-          ),
+    <QueryClientProvider client={queryClient}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarShowLabel: false,
+          tabBarStyle: styles.tabBar,
         }}
-      />
-      <Tab.Screen
-        name={SCREENS.CREATE_RECIPE}
-        component={CreateRecipeScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
-              <Image
-                source={require("./assets/images/create.png")}
-                style={[
-                  styles.icon,
-                  { tintColor: focused ? "#FFF" : "#000" }
-                ]}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name={SCREENS.RECIPE_LIKED}
-        component={LikeRecipeScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
-              <Image
-                source={require("./assets/images/like.png")}
-                style={[
-                  styles.icon,
-                  { tintColor: focused ? "#FFF" : "#000" }
-                ]}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
-              <Image
-                source={require("./assets/images/profile.png")}
-                style={[
-                  styles.icon,
-                  { tintColor: focused ? "#FFF" : "#000" }
-                ]}
-              />
-            </View>
-          ),
-        }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name={SCREENS.HOME}
+          component={HomeScreen}
+          initialParams={{ apiHandler }}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
+                <Image
+                  source={require("./assets/images/home.png")}
+                  style={[
+                    styles.icon,
+                    { tintColor: focused ? "#FFF" : "#000" }
+                  ]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name={SCREENS.CREATE_RECIPE}
+          component={CreateRecipeScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
+                <Image
+                  source={require("./assets/images/create.png")}
+                  style={[
+                    styles.icon,
+                    { tintColor: focused ? "#FFF" : "#000" }
+                  ]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name={SCREENS.RECIPE_LIKED}
+          component={LikeRecipeScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
+                <Image
+                  source={require("./assets/images/like.png")}
+                  style={[
+                    styles.icon,
+                    { tintColor: focused ? "#FFF" : "#000" }
+                  ]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.focusedIconContainer : styles.iconContainer}>
+                <Image
+                  source={require("./assets/images/profile.png")}
+                  style={[
+                    styles.icon,
+                    { tintColor: focused ? "#FFF" : "#000" }
+                  ]}
+                />
+              </View>
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </QueryClientProvider>
   );
 };
 

@@ -1,22 +1,35 @@
-import React, {useContext} from 'react';
-import { StyleSheet, Image, Text, View, Button, TouchableOpacity } from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthContext } from '../../authContext';
-import Swiper from 'react-native-deck-swiper';
+import { DishesModel } from '../_utils/models/dishes';
+import { MySwipper } from '../_utils/components/swipper';
 
 
-export default function HomeScreen() {
+export default function HomeScreen({route} : {route : any}) {
+  const { apiHandler } = route.params
   const auth = useContext(AuthContext);
+  const [allDishes, setAllDishes] = useState<DishesModel[]>([])
+  const [isDataFetched, setIsDataFetched] = useState(false)
 
   if (!auth) return null;
 
   const { signOut } = auth;
 
-  const images = [
-    { id: 1, uri: 'https://picsum.photos/536/354' },
-    { id: 2, uri: 'https://picsum.photos/id/237/536/354' },
-    { id: 3, uri: 'https://picsum.photos/seed/picsum/200/300' },
-  ];
+  useEffect(() => {
+    const fetchData = async() => {
+      try {
+        const dataRetrieve = await apiHandler.getData('dishes')
+        setAllDishes(dataRetrieve as DishesModel[])
+      } catch (error: Error | any) {
+        console.error(error.message)
+      } finally {
+        if (isDataFetched === false)
+          setIsDataFetched(true)
+      }
+    }
+    fetchData()
+  }, [])
 
   const filtersValue = [
     { id : 1, value: "Petit-déjeuner"},
@@ -26,21 +39,7 @@ export default function HomeScreen() {
     { id: 5, value: "Viande" },
     { id: 6, value: "10'" }
   ]
-
-  const Card = ({ image }: { image: { id: number; uri: string } }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: image.uri }} style={styles.image} />
-    </View>
-  );
-
-  const onLeftSwipe = () => {
-    console.log("Hello World")
-  }
-
-  const onRightSwipe = () => {
-    console.log("Hello Sir")
-  }
-
+    
   const onPressFilter = (index: number) => {
     console.log(index)
   }
@@ -60,22 +59,18 @@ export default function HomeScreen() {
           )
         })}
       </View>
-      <View style={styles.container}>
-        <Swiper
-          cards={images}
-          renderCard={(card) => <Card image={card} />}
-          onSwipedRight={(cardIndex) => { onRightSwipe() }}
-          onSwipedLeft={(cardIndex) => { onLeftSwipe() }}
-          cardIndex={0}
-          backgroundColor={'#f0f0f0'}
-          stackSize={3}
-          // cardStyle={{
-            
-          // }}
-        />
+      <View>
+        {
+          isDataFetched ? ( 
+            <MySwipper dishes={allDishes} apiHandler={apiHandler}/>
+          ) : (
+            <View>
+              <Text>Chargement des données...</Text>
+            </View>
+          )
+        }
+      </View>
     </View>
-    </View>
-
   );
 }
 const styles = StyleSheet.create({
