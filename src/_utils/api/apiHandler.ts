@@ -1,8 +1,8 @@
 import { supabase } from "../../../supabase"
 import { LikesModel } from "../models/likes";
-
+import { User as SupabaseUser } from '@supabase/supabase-js';
 export default class ApiHandler {
-    public async getUser() : Promise<object>{
+    public async getUser() : Promise<SupabaseUser>{
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
