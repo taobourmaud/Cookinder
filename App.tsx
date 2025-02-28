@@ -5,11 +5,15 @@ import { AuthContext, AuthProvider } from './authContext';
 import HomeScreen from './screens/home.screen';
 import SignInScreen from './screens/signIn.screen';
 import SignUpScreen from './screens/signUp.screen';
+import CameraFunction from './screens/takePicture.screen';
+import PhotoFormScreen from './screens/photoForm.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   SignIn: undefined;
   SignUp: undefined;
+  TakePicture: undefined;
+  PhotoForm: { imageUri: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -29,7 +33,11 @@ const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <>
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="TakePicture" component={CameraFunction} /> 
+          <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="SignIn" component={SignInScreen} />
