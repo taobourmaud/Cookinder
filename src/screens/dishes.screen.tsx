@@ -1,7 +1,7 @@
 import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
-import {getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish} from '../services/dishesService';
-import {AuthContext} from "../authContext";
+import { getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
+import { AuthContext } from '../../authContext';
 
 export default function DishesScreen({ navigation }) {
 
@@ -44,7 +44,7 @@ export default function DishesScreen({ navigation }) {
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Image
-                        source={require('../assets/COOKINDER.png')}
+                        source={require('../../assets/COOKINDER.png')}
                         style={styles.logoImage}
                     />
                 </View>
@@ -61,7 +61,7 @@ export default function DishesScreen({ navigation }) {
                         return (
                             <TouchableOpacity
                                 style={styles.card}
-                                onPress={() => { navigation.navigate('DishDetailsScreen', { dishId, userData, tagsForDish});}}
+                                onPress={() => { navigation.navigate('DishDetailScreen', { dishId, userData, tagsForDish});}}
                             >
                                 <View style={styles.card}>
                                     <Image source={{ uri: item.dishes.image_url }} style={styles.image} />

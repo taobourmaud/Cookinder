@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { getLikedDishesByUser } from '../services/dishesService';
 import { Ionicons } from '@expo/vector-icons';
+import { RootStackParamList } from '../../App';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { getLikedDishesByUser } from '../../services/dishesService';
+
+type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
+type PhotoFormRouteProp = RouteProp<RootStackParamList, 'DishDetailScreen'>;
 
 export default function DishDetailScreen({ route, navigation }) {
     const { tagsForDish } = route.params;
@@ -39,7 +45,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     <Ionicons name="arrow-back" size={30} color="black" />
                 </TouchableOpacity>
                 <Image
-                    source={require('../assets/COOKINDER.png')}
+                    source={require('../../assets/COOKINDER.png')}
                     style={styles.logoImage}
                 />
             </View>

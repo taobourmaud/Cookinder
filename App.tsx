@@ -16,8 +16,8 @@ import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 import SignInScreen from './src/screens/tabs/auth/signIn.screen';
 import CameraFunction from './src/screens/takePicture.screen';
 import PhotoFormScreen from './src/screens/photoForm.screen';
-import DishesScreen from "./screens/dishes.screen";
-import DishDetailsScreen from "./screens/dish.details.screen";
+import DishesScreen from './src/screens/dishes.screen';
+import DishDetailScreen from './src/screens/dish.details.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -25,6 +25,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   TakePicture: undefined;
   PhotoForm: { imageUri: string };
+  DishDetailScreen: undefined
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -82,7 +83,7 @@ const TabNavigator: React.FC = () => {
         />
         <Tab.Screen
           name={SCREENS.RECIPE_LIKED}
-          component={LikeRecipeScreen}
+          component={DishesScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -139,9 +140,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="HomeScreen" component={TabNavigator} />
           <Stack.Screen name="TakePicture" component={CameraFunction} /> 
           <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
-          <Stack.Screen name="HomeScreen" component={HomeScreen} />
-          <Stack.Screen name="DishesScreen" component={DishesScreen} />
-          <Stack.Screen name="DishDetailsScreen" component={DishDetailsScreen} />
+          <Stack.Screen name="DishDetailScreen" component={DishDetailScreen} />
         </>
       ) : (
         <>
