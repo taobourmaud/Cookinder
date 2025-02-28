@@ -3,21 +3,16 @@ import {
   StyleSheet, 
   Text, 
   View, 
+  Image,
   TouchableOpacity, 
   TextInput, 
-  ActivityIndicator, 
-  ImageBackground 
+  ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-<<<<<<<< HEAD:src/screens/tabs/auth/signIn.screen.tsx
 import { AuthContext } from '../../../../authContext';
 import { supabase } from '../../../../supabase';
 import { RootStackParamList } from '../../../../App';
-========
-import { supabase } from '../../../supabase';
-import { RootStackParamList } from '../../../App';
-import { AuthContext } from '../../../authContext';
->>>>>>>> swipe_dishes:src/screens/auth/signIn.screen.tsx
+import SocialButton from '../../components/inputs/social-button';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -45,102 +40,165 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation }) => {
   }
 
   return (
-    <ImageBackground 
-<<<<<<<< HEAD:src/screens/tabs/auth/signIn.screen.tsx
-      source={require('../../../../assets/images/background.png')} 
-========
-      source={require('../../../assets/images/background.png')} 
->>>>>>>> swipe_dishes:src/screens/auth/signIn.screen.tsx
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <View style={styles.overlay}>
-        <View style={styles.formContainer}>
-          <Text style={styles.text}>Connexion</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={setEmail}
-            value={email}
-            placeholder="Email"
-            placeholderTextColor="#fff"
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Password"
-            placeholderTextColor="#fff"
-            autoCapitalize="none"
-            secureTextEntry
-          />
-          {loading ? (
-            <ActivityIndicator size="large" color="#fff" />
-          ) : (
-            <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-              <Text style={styles.buttonText}>Connexion</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signInText}>Pas de compte ? Créez en un ici</Text>
-          </TouchableOpacity>
+    <View
+      style={styles.background}>
+      <View>
+        <Image
+          source={require("../../../../assets/images/signIn.png")}
+        />
+        <View style={styles.textOverlay}>
+          <Text style={styles.text}>Connectez-vous à votre compte</Text>
         </View>
       </View>
-    </ImageBackground>
-  );
+      <View
+        style={styles.formContainer}
+      >
+        <TextInput
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          autoCapitalize="none"
+          placeholder='Email'
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          autoCapitalize="none"
+          placeholder='Mot de passe'
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.forgotPassword}>
+          <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
+        </TouchableOpacity>
+
+        {loading ? (
+          <ActivityIndicator />
+        ) :  
+        <TouchableOpacity style={styles.loginButton} onPress={handleSignIn}>
+          <Text style={styles.loginButtonText}>Connexion</Text>
+        </TouchableOpacity>}
+
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>Ou avec</Text>
+          <View style={styles.dividerLine} />
+        </View> 
+
+        <SocialButton
+          title='Se connecter avec Facebook'
+          sourceImg={require("../../../../assets/images/facebook.png")}
+          backgroundColor='#3b5998'
+          color='white'
+          onPress={() => console.log('Facebook')} 
+        />
+
+        <SocialButton
+          title='Se connecter avec Apple'
+          sourceImg={require("../../../../assets/images/apple.png")}
+          backgroundColor='black'
+          color='white'
+          onPress={() => console.log('Apple')}
+        />
+
+        <SocialButton
+          title='Se connecter avec Google'
+          sourceImg={require("../../../../assets/images/google.png")}
+          backgroundColor='FAFAFA'
+          color='black'
+          onPress={() => console.log('Google')}
+          isGoogle
+        />
+
+        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('SignUp')}>
+            <Text style={styles.signupLinkText}>Pas de compte ? <Text style={{ fontWeight: 'bold' }}>Inscrivez-vous !</Text></Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: 'flex-end', 
+    backgroundColor: 'white',
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-    justifyContent: 'flex-end',
+  textOverlay: {
+    position: 'absolute',
+    bottom: 10, 
+    left: 10, 
+    padding: 10,
+    borderRadius: 5,
+  },
+  text: {
+    color: 'white', 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    width: 200, 
+    fontFamily: 'Montserrat'
   },
   formContainer: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
     padding: 20,
-    marginBottom: 40,
   },
   input: {
-    width: '100%',
-    padding: 15,
-    marginVertical: 10,
+    height: 50,
     borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 8,
-    color: '#fff',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  text : {
-    color: '#EBB502',
-    alignItems: 'center',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontFamily: 'Montserrat'
-  },
-  button: {
-    backgroundColor: '#EBB502',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#000',
+    borderColor: '#CCCCCC',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    marginBottom: 10,
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#333333',
   },
-  signInText: {
+  forgotPassword: {
+    alignSelf: 'flex-end',
+  },
+  forgotPasswordText: {
+    color: '#000000',
+    fontSize: 10,
+    fontFamily: 'Montserrat-Light',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#000000',
+  },
+  dividerText: {
+    paddingHorizontal: 10,
+    color: '#000000',
+    fontSize: 11,
+    fontFamily: 'Montserrat-Light',
+  },
+  loginButton: {
+    backgroundColor: '#FFC107',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
     marginTop: 20,
-    color: '#EBB502',
-    textAlign: 'center',
-    fontSize: 14,
-    fontFamily: 'Montserrat'
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat',
+  },
+  signupLink: {
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  signupLinkText: {
+    color: '#000000',
+    fontSize: 16,
+    fontFamily: 'Montserrat',
   },
 });
 

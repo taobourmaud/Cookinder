@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../../authContext';
 import { DishesModel } from '../../_utils/models/dishes';
 import { MySwipper } from '../../_utils/components/swipper';

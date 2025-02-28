@@ -1,15 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, ImageBackground} from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-<<<<<<<< HEAD:src/screens/tabs/auth/signUp.screen.tsx
-import { supabase } from '../../../../supabase';
-import { AuthContext } from '../../../../authContext';
 import { RootStackParamList } from '../../../../App';
-========
-import { supabase } from '../../../supabase';
-import { AuthContext } from '../../../authContext';
-import { RootStackParamList } from '../../../App';
->>>>>>>> swipe_dishes:src/screens/auth/signUp.screen.tsx
+import { AuthContext } from '../../../../authContext';
+import { supabase } from '../../../../supabase';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
@@ -51,100 +45,119 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   }
 
   return (
-    <ImageBackground 
-<<<<<<<< HEAD:src/screens/tabs/auth/signUp.screen.tsx
-          source={require('../../../../assets/images/background.png')} 
-========
-          source={require('../../../assets/images/background.png')} 
->>>>>>>> swipe_dishes:src/screens/auth/signUp.screen.tsx
-          style={styles.background}
-          resizeMode="cover"
-        >
-          <View style={styles.overlay}>
-            <View style={styles.formContainer}>
-              <TextInput
-                style={styles.input}
-                onChangeText={setEmail}
-                value={email}
-                placeholder="Email"
-                placeholderTextColor="#fff"
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-              <TextInput
-                style={styles.input}
-                onChangeText={setPassword}
-                value={password}
-                placeholder="Password"
-                placeholderTextColor="#fff"
-                autoCapitalize="none"
-                secureTextEntry
-              />
-              <TextInput
-                style={styles.input}
-                onChangeText={setUsername}
-                value={username}
-                placeholder="Nom d'utilisateur"
-                placeholderTextColor="#fff"
-                autoCapitalize="none"
-              />
-              {loading ? (
-                <ActivityIndicator size="large" color="#fff" />
-              ) : (
-                <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-                  <Text style={styles.buttonText}>Inscription</Text>
-                </TouchableOpacity>
-              )}
-               <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-                <Text style={styles.signUpText}>Déjà inscrit ? Connectez vous ici !</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-      </ImageBackground>
+    <View style={styles.background}>
+      <View>
+        <Image
+          source={require("../../../../assets/images/signIn.png")}
+        />
+        <View style={styles.textOverlay}>
+          <Text style={styles.text}>Inscrivez vous ici !</Text>
+        </View>
+      </View>
+      <View
+        style={styles.formContainer}
+      >
+        <TextInput
+          style={styles.input}
+          onChangeText={setUsername}
+          value={username}
+          autoCapitalize="none"
+          placeholder="Nom d'utilisateur"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          autoCapitalize="none"
+          placeholder='Email'
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          autoCapitalize="none"
+          placeholder='Mot de passe'
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.signUpButton}>
+          <Text style={styles.signUpButtonText}>Inscription</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.signInLink} onPress={() => navigation.navigate('SignIn')}>
+            <Text style={styles.signInLinkText}>Déjà inscrit ? <Text style={{ fontWeight: 'bold' }}>Connectez-vous !</Text></Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: 'flex-end', 
+    backgroundColor: 'white',
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-    justifyContent: 'flex-end',
+  textOverlay: {
+    position: 'absolute',
+    bottom: 10, 
+    left: 10, 
+    padding: 10,
+    borderRadius: 5,
+  },
+  text: {
+    color: 'white', 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    width: 200, 
+    fontFamily: 'Montserrat'
   },
   formContainer: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    backgroundColor: 'white',
     padding: 20,
-    marginBottom: 40,
   },
   input: {
-    width: '100%',
-    padding: 15,
-    marginVertical: 10,
+    height: 50,
     borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 8,
-    color: '#fff',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  button: {
-    backgroundColor: '#EBB502',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#000',
+    borderColor: '#CCCCCC',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    marginBottom: 15,
     fontSize: 16,
-    fontWeight: 'bold',
+    color: '#333333',
   },
-  signUpText: {
-    marginTop: 20,
-    color: '#EBB502',
-    textAlign: 'center',
-    fontSize: 14,
+  signUpButton: {
+    backgroundColor: '#FFC107',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  signUpButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat',
+  },
+  signInLink: {
+    alignSelf: 'center',
+  },
+  signInLinkText: {
+    color: '#000000',
+    fontSize: 16,
+    fontFamily: 'Montserrat',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#000000',
   },
 });
 
