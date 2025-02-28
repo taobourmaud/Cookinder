@@ -15,11 +15,15 @@ import HomeScreen from './src/screens/tabs/home.screen';
 import ApiHandler from './src/_utils/api/apiHandler';
 import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 import SignInScreen from './src/screens/tabs/auth/signIn.screen';
+import CameraFunction from './src/screens/takePicture.screen';
+import PhotoFormScreen from './src/screens/photoForm.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   SignIn: undefined;
   SignUp: undefined;
+  TakePicture: undefined;
+  PhotoForm: { imageUri: string };
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -59,7 +63,7 @@ const TabNavigator: React.FC = () => {
         />
         <Tab.Screen
           name={SCREENS.CREATE_RECIPE}
-          component={CreateRecipeScreen}
+          component={PhotoFormScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -130,7 +134,11 @@ const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
-        <Stack.Screen name="HomeScreen" component={TabNavigator} />
+        <>
+          <Stack.Screen name="HomeScreen" component={TabNavigator} />
+          <Stack.Screen name="TakePicture" component={CameraFunction} /> 
+          <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="SignIn" component={SignInScreen} />
