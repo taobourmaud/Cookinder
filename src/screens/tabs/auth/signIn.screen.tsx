@@ -9,9 +9,9 @@ import {
   ImageBackground 
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { supabase } from '../../supabase';
-import { RootStackParamList } from '../../App';
-import { AuthContext } from '../../authContext';
+import { AuthContext } from '../../../../authContext';
+import { supabase } from '../../../../supabase';
+import { RootStackParamList } from '../../../../App';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -40,7 +40,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ navigation }) => {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/background.png')} 
+      source={require('../../../../assets/images/background.png')} 
       style={styles.background}
       resizeMode="cover"
     >
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: 'Montserrat'
   },
   button: {
     backgroundColor: '#EBB502',
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
     color: '#EBB502',
     textAlign: 'center',
     fontSize: 14,
+    fontFamily: 'Montserrat'
   },
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { AuthContext } from '../../authContext';
+import { AuthContext } from '../../../authContext';
 import { useContext } from 'react';
 
 

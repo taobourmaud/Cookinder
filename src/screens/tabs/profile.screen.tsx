@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
-import { supabase } from '../../supabase'
+import { supabase } from '../../../supabase'
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { AuthContext } from '../../authContext';
+import { AuthContext } from '../../../authContext';
+import UserInfos from '../components/userInfos';
+import Button from '../components/inputs/button';
 
 
 const ProfileScreen = () => {
@@ -17,6 +19,12 @@ const ProfileScreen = () => {
   if (!auth) return null;
 
   const { signOut } = auth;
+
+  async function getDishesCreated() {
+    const { data, error } = await supabase.from('dishes').select('*').eq('user_id', user?.id);
+
+    console.log(data);
+  }
 
   async function getUser() {
     const { data, error } = await supabase.auth.getUser();
@@ -56,25 +64,11 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <View
-        style={{
-          marginTop: 100,
-          marginBottom: 40,
-          width: 150,
-          height: 150,
-          borderRadius: 75,
-          backgroundColor: "#F4F5FF",
-          justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'hidden', 
-        }}
+        style={styles.imageContainer}
       >
         <Image
-          source={require("../../assets/images/etchebest.jpg")}
-          style={{
-            width: '100%', 
-            height: '100%', 
-            resizeMode: 'cover', 
-          }}
+          source={require("../../../assets/images/etchebest.jpg")}
+          style={styles.profileImage}
         />
       </View>
       <View style={styles.personalInfo}>
@@ -83,78 +77,48 @@ const ProfileScreen = () => {
           <View style={{ flexDirection: 'row', gap: '10' }}>
             {isEditing && (
               <TouchableOpacity onPress={updateUser}>
-                <Image style={{ marginTop: 10 }} source={require("../../assets/images/check.png")} />
+                <Image style={{ marginTop: 10, }} source={require("../../../assets/images/check.png")} />
               </TouchableOpacity>
             )}
             <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-              <Image style={{ marginRight: 10, marginTop: 10 }} source={require("../../assets/images/edit.png")} />
+              <Image style={{ marginRight: 10, marginTop: 10 }} source={require("../../../assets/images/edit.png")} />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.personalInfoFieldContainer}>
-          <Image
-              source={require("../../assets/images/profile.png")}
-            />
-          <View style={styles.personalInfoFieldText}>
-            <Text style={styles.personalInfoFieldTitle}>Nom d'utilisateur</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={displayName}
-                onChangeText={setDisplayName}
-                placeholder="Nom d'utilisateur"
-              />
-            ) : (
-              <Text style={styles.personalInfoFieldField}>{displayName || 'Non renseigné'}</Text>
-            )}
-          </View>
-        </View>
-        <View style={styles.personalInfoFieldContainer}>
-          <Image
-              source={require("../../assets/images/email.png")}
-            />
-          <View style={styles.personalInfoFieldText}>
-            <Text style={styles.personalInfoFieldTitle}>Email</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email"
-                keyboardType='email-address'
-              />
-            ) : (
-              <Text style={styles.personalInfoFieldField}>{email || 'Non renseigné'}</Text>
-            )}
-          </View>
-        </View>
-        <View style={styles.personalInfoFieldContainer}>
-          <Image
-              source={require("../../assets/images/phone.png")}
-            />
-          <View style={styles.personalInfoFieldText}>
-            <Text style={styles.personalInfoFieldTitle}>N° téléphone</Text>
-            {isEditing ? (
-              <TextInput
-                style={styles.input}
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="N° téléphone"
-                keyboardType='phone-pad'
-              />
-            ) : (
-              <Text style={styles.personalInfoFieldField}>{phone || 'Non renseigné'}</Text>
-            )}
-          </View>
-        </View>
+        <UserInfos
+          isEditing={isEditing}
+          sourceImg={require("../../../assets/images/profile.png")}
+          title="Nom d'utilisateur"
+          value={displayName}
+          setValue={setDisplayName}
+          placeholder="Nom d'utilisateur"
+        />
+
+        <UserInfos
+          isEditing={isEditing}
+          sourceImg={require("../../../assets/images/email.png")}
+          title="Email"
+          value={email}
+          setValue={setEmail}
+          placeholder="Email"
+        />
+
+        <UserInfos
+          isEditing={isEditing}
+          sourceImg={require("../../../assets/images/phone.png")}
+          title="N° téléphone"
+          value={phone}
+          setValue={setPhone}
+          placeholder="N° téléphone"
+        />
       </View>
       <View style={styles.recipeCreated}>
         <View style={styles.recipeContainer}>
-        {/* TODO Choper tous les likes reçus par l'utilisateur */}
+        {/* TODO Chopper tous les likes reçus par l'utilisateur */}
           <Image
             style={styles.recipeImage}
-            source={require("../../assets/images/like.png")}
+            source={require("../../../assets/images/like.png")}
           />
             <Text style={styles.recipeText}>Like reçus : 20</Text>
         </View>
@@ -163,19 +127,15 @@ const ProfileScreen = () => {
         <View style={styles.recipeContainer}>
           <Image
             style={styles.recipeImage}
-            source={require("../../assets/images/recipe.png")}
+            source={require("../../../assets/images/recipe.png")}
           />
           {/* TODO Rediriger vers toutes les recettes crées par l'utilisateur */}
-          <TouchableOpacity>          
+          <TouchableOpacity onPress={getDishesCreated}>          
             <Text style={styles.recipeText}>Recettes créées</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={signOut}>
-          <Text style={styles.buttonText}>Déconnexion</Text>
-        </TouchableOpacity>
-      </View>
+      <Button onPress={signOut} title="Se déconnecter" color="#EA623D" />
     </View>
   )
 }
@@ -186,6 +146,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#fff'
+  },
+  imageContainer: {
+    marginTop: 100,
+    marginBottom: 40,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: "#F4F5FF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden', 
+  },
+  profileImage: {
+    width: '100%', 
+    height: '100%', 
+    resizeMode: 'cover', 
   },
   personalInfo: {
     backgroundColor: "#F4F5FF",
@@ -199,29 +175,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 10,
     fontFamily: 'Montserrat',
-  },
-  personalInfoFieldContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    marginLeft: 10,
-    alignItems: 'center',
-  },
-  personalInfoFieldText: {
-    marginLeft: 10,
-  },
-  personalInfoFieldTitle: {
-    fontSize: 12,
-    fontFamily: 'Montserrat-Light',
-  },
-  personalInfoFieldField: {
-    fontSize: 15,
-    fontFamily: 'Montserrat',
-  },
-  input: {
-    fontSize: 15,
-    fontFamily: 'Montserrat',
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#EBB502',
   },
   buttonContainer: {
     position: 'absolute',

@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/tabs/home.screen';
-import SCREENS from '../screens'
+import HomeScreen from '../src/screens/tabs/home.screen';
+import SCREENS from '../src/screens'
 import { Image } from 'react-native';
 
 const Tab = createBottomTabNavigator();

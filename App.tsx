@@ -3,16 +3,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthContext, AuthProvider } from './authContext';
-import HomeScreen from './screens/tabs/home.screen';
-import SignInScreen from './screens/auth/signIn.screen';
-import SignUpScreen from './screens/auth/signUp.screen';
+import HomeScreen from './src/screens/tabs/home.screen';
 import { Image, View, StyleSheet } from 'react-native';
-import ProfileScreen from './screens/tabs/profile.screen';
-import CreateRecipeScreen from './screens/tabs/create-recipe.screen';
-import SCREENS from './screens';
-import LikeRecipeScreen from './screens/tabs/like-recipe.screen';
+import ProfileScreen from './src/screens/tabs/profile.screen';
+import CreateRecipeScreen from './src/screens/tabs/create-recipe.screen';
+import SCREENS from './src/screens';
+import LikeRecipeScreen from './src/screens/tabs/like-recipe.screen';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import SignInScreen from './src/screens/tabs/auth/signIn.screen';
+import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 
 
 export type RootStackParamList = {
