@@ -16,6 +16,8 @@ import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 import SignInScreen from './src/screens/tabs/auth/signIn.screen';
 import CameraFunction from './src/screens/takePicture.screen';
 import PhotoFormScreen from './src/screens/photoForm.screen';
+import DishesScreen from "./screens/dishes.screen";
+import DishDetailsScreen from "./screens/dish.details.screen";
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -137,6 +139,9 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="HomeScreen" component={TabNavigator} />
           <Stack.Screen name="TakePicture" component={CameraFunction} /> 
           <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
+          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="DishesScreen" component={DishesScreen} />
+          <Stack.Screen name="DishDetailsScreen" component={DishDetailsScreen} />
         </>
       ) : (
         <>
