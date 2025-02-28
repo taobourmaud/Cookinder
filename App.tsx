@@ -60,7 +60,7 @@ const TabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name={SCREENS.CREATE_RECIPE}
-        component={CreateRecipeScreen}
+        component={PhotoFormScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => (
@@ -130,7 +130,7 @@ const AppNavigator: React.FC = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
         <>
-          <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="HomeScreen" component={TabNavigator} />
           <Stack.Screen name="TakePicture" component={CameraFunction} /> 
           <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
         </>

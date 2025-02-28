@@ -13,7 +13,7 @@ type PhotoFormRouteProp = RouteProp<RootStackParamList, 'PhotoForm'>;
 export default function PhotoFormScreen() {
   const navigation = useNavigation<PhotoFormNavigationProp>();
   const route = useRoute<PhotoFormRouteProp>();
-  const { imageUri } = route.params;
+  const [imageUri, setImageUri] = useState(route.params?.imageUri || null);
 
   const [title, setTitle] = useState('');
   const [difficulty, setDifficulty] = useState('Intermédiaire');
@@ -26,6 +26,12 @@ export default function PhotoFormScreen() {
   const [newInstruction, setNewInstruction] = useState('');
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState('');
+
+
+  function goToTakePicture() {
+    navigation.navigate('TakePicture'); 
+  }
+
 
   function addIngredient() {
     if (newIngredient.trim() !== '') {
@@ -109,7 +115,7 @@ export default function PhotoFormScreen() {
       Alert.alert('Erreur', 'Échec de l’enregistrement du plat');
     } else {
       Alert.alert('Succès', 'Plat enregistré avec succès !');
-      navigation.goBack();
+      navigation.navigate('HomeScreen');
     }
 
     setLoading(false);
@@ -119,7 +125,14 @@ export default function PhotoFormScreen() {
     <View style={styles.container}>
       <Text style={styles.header}>Créer un plat ici !</Text>
       <Text style={styles.subHeader}>Créer un plat pour le partager aux utilisateurs !</Text>
-      <Image source={{ uri: imageUri }} style={styles.image} />
+      <TouchableOpacity style={[styles.imageContainer, !imageUri && styles.placeholder]} onPress={goToTakePicture}>
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.image} />
+        ) : (
+          <Text style={styles.placeholderText}>📷 Prendre une photo</Text>
+        )}
+      </TouchableOpacity>
+
 
       <TextInput
         style={styles.input}
@@ -220,11 +233,27 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginBottom: 10,
   },
+  imageContainer: {
+    width: '100%',
+    height: 200, // Même hauteur que l’image
+    marginBottom: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholder: {
+    backgroundColor: '#E0E0E0', // Gris clair pour la zone vide
+    borderWidth: 2,
+    borderColor: '#A0A0A0', // Gris plus foncé pour la bordure
+  },
   image: {
     width: '100%',
-    height: 200,
+    height: '100%',
     borderRadius: 10,
-    marginBottom: 10,
+  },
+  placeholderText: {
+    fontSize: 16,
+    color: '#666',
   },
   input: {
     borderWidth: 1,
@@ -296,5 +325,10 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex:1,
+  },
+  photoButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
   }
 });
