@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from './supabase';
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -33,6 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signOut = async () => {
+    await supabase.auth.signOut()
     await AsyncStorage.removeItem('userToken');
     setIsLoggedIn(false);
   };
