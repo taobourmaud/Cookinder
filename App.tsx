@@ -4,7 +4,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthContext, AuthProvider } from './authContext';
 import { Image, View, StyleSheet } from 'react-native';
-import CreateRecipeScreen from './src/screens/tabs/create-recipe.screen';
 import SCREENS from './src/screens';
 import LikeRecipeScreen from './src/screens/tabs/like-recipe.screen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { supabase } from '../supabase';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../App';
+import { RootStackParamList } from '../../App';
+import { supabase } from '../../supabase';
 
 type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoForm'>;
 type PhotoFormRouteProp = RouteProp<RootStackParamList, 'PhotoForm'>;
