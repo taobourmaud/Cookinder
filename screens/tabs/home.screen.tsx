@@ -4,12 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthContext } from '../../authContext';
 import { DishesModel } from '../_utils/models/dishes';
 import { MySwipper } from '../_utils/components/swipper';
+import { TagsModel } from '../_utils/models/tags';
 
 
 export default function HomeScreen({route} : {route : any}) {
   const { apiHandler } = route.params
   const auth = useContext(AuthContext);
-  const [allDishes, setAllDishes] = useState<DishesModel[]>([])
+  const [allDishes, setDishes] = useState<DishesModel[]>([])
+  const [tags, setTags] = useState<TagsModel[]>()
   const [isDataFetched, setIsDataFetched] = useState(false)
 
   if (!auth) return null;
@@ -19,8 +21,10 @@ export default function HomeScreen({route} : {route : any}) {
   useEffect(() => {
     const fetchData = async() => {
       try {
-        const dataRetrieve = await apiHandler.getData('dishes')
-        setAllDishes(dataRetrieve as DishesModel[])
+        const dishes = await apiHandler.getData('dishes')
+        const tags = await apiHandler.getData('tags')
+        setDishes(dishes as DishesModel[])
+        setTags(tags as TagsModel[])
       } catch (error: Error | any) {
         console.error(error.message)
       } finally {
@@ -30,16 +34,8 @@ export default function HomeScreen({route} : {route : any}) {
     }
     fetchData()
   }, [])
-
-  const filtersValue = [
-    { id : 1, value: "Petit-déjeuner"},
-    { id: 2, value: "Plats" },
-    { id: 3, value: "Végétarien" },
-    { id: 4, value: "Poulet" },
-    { id: 5, value: "Viande" },
-    { id: 6, value: "10'" }
-  ]
     
+  // TODO Faire un composant pour les filtres et réadapter la fonction onPressFilter
   const onPressFilter = (index: number) => {
     console.log(index)
   }
@@ -51,10 +47,10 @@ export default function HomeScreen({route} : {route : any}) {
         <Text>Cherche des inspirations pour tes prochaines recettes !</Text>
       </View>
       <View style={styles.filterView}>
-        {filtersValue.map((data) => {
+        {tags?.map((data) => {
           return (
-              <TouchableOpacity key={data.id} style={styles.filterButton} onPress={() => onPressFilter(data.id)}>
-                <Text style={styles.filterText}>{data.value}</Text>
+              <TouchableOpacity key={data.id} style={styles.filterButton} onPress={() => onPressFilter(data?.id)}>
+                <Text style={styles.filterText}>{data.title}</Text>
               </TouchableOpacity>
           )
         })}
