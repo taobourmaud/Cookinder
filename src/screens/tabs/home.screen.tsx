@@ -1,28 +1,45 @@
 import React, {useContext, useEffect, useState} from 'react';
 import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { AuthContext } from '../../../authContext';
 import { DishesModel } from '../../_utils/models/dishes';
 import { MySwipper } from '../../_utils/components/swipper';
 import { TagsModel } from '../../_utils/models/tags';
+import { DishesTagModel } from '../../_utils/models/dishes_tag';
+import { RequestFilter } from '../../_utils/models/requestFilter';
+import { LikesModel } from '../../_utils/models/likes';
+import ApiHandler from '../../_utils/api/apiHandler';
+import { RouteProp } from '@react-navigation/native';
+
+type HomeScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
 
 
-export default function HomeScreen({route} : {route : any}) {
-  const { apiHandler } = route.params
-  const auth = useContext(AuthContext);
-  const [allDishes, setDishes] = useState<DishesModel[]>([])
+export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
+  const { apiHandler } = route.params 
+  const [dishes, setDishes] = useState<DishesModel[]>([])
   const [tags, setTags] = useState<TagsModel[]>()
-  const [isDataFetched, setIsDataFetched] = useState(false)
-
-  if (!auth) return null;
-
-  const { signOut } = auth;
+  const [isDataFetched, setIsDataFetched] = useState<boolean>(false)
+  const [filterApplied, setFilterApplied] = useState<number[]>([])
 
   useEffect(() => {
     const fetchData = async() => {
       try {
-        const dishes = await apiHandler.getData('dishes')
-        const tags = await apiHandler.getData('tags')
+        // Get user to check dishes liked
+        const user = await apiHandler.getUser()
+        // Filter on user likes
+        const likes: LikesModel[] = await apiHandler.getData({ targetTable: 'likes', conditionsEq: new RequestFilter('user_id',user.id) })
+        // Keep only likes_ids
+        const dishesLiked_ids: string[] = likes.map((like) => like.dish_id)
+        // Get all dishes before likes exclude treatment
+        let dishes: DishesModel[] = await apiHandler.getData({ targetTable: 'dishes'}) as DishesModel[]
+        const tags = await apiHandler.getData({ targetTable: 'tags' })
+
+        if (filterApplied.length > 0) {
+          // If filter is applied => Filter dishes by Tag
+          const dishesTagFilteredId: DishesTagModel[] = await apiHandler.getData({targetTable: 'dishes_tags', conditionsIn: new RequestFilter('tag_id', filterApplied)})
+          const dishesFilteredIds: string[] = dishesTagFilteredId?.map((data: DishesTagModel) => data.dish_id)
+          dishes = await apiHandler.getData({targetTable: 'dishes', conditionsIn: new RequestFilter('id', dishesFilteredIds)})
+        }
+
+        dishes = dishes.filter(dish => !dishesLiked_ids.includes(dish.id))
         setDishes(dishes as DishesModel[])
         setTags(tags as TagsModel[])
       } catch (error: Error | any) {
@@ -33,11 +50,18 @@ export default function HomeScreen({route} : {route : any}) {
       }
     }
     fetchData()
-  }, [])
+  }, [filterApplied])
     
-  // TODO Faire un composant pour les filtres et réadapter la fonction onPressFilter
   const onPressFilter = (index: number) => {
-    console.log(index)
+    setFilterApplied(prevFilter => {
+      if (filterApplied.includes(index)){
+        const filteredNumber = prevFilter.filter(itemIndex => itemIndex !== index)
+        return filteredNumber.length === 0 ? [] : filteredNumber
+      } else {
+        const newFilters = [...prevFilter, index]
+        return newFilters
+      }
+    })
   }
 
   return (
@@ -49,8 +73,8 @@ export default function HomeScreen({route} : {route : any}) {
       <View style={styles.filterView}>
         {tags?.map((data) => {
           return (
-              <TouchableOpacity key={data.id} style={styles.filterButton} onPress={() => onPressFilter(data?.id)}>
-                <Text style={styles.filterText}>{data.title}</Text>
+              <TouchableOpacity key={data.id} style={styles.filterButton} onPress={() => onPressFilter(data['id'])}>
+                <Text style={[styles.filterText, { color: data.id && filterApplied.includes(data.id) ? '#EBB502' : 'black' }]}>{data.title}</Text>
               </TouchableOpacity>
           )
         })}
@@ -58,7 +82,7 @@ export default function HomeScreen({route} : {route : any}) {
       <View>
         {
           isDataFetched ? ( 
-            <MySwipper dishes={allDishes} apiHandler={apiHandler}/>
+            <MySwipper dishes={dishes} apiHandler={apiHandler}/>
           ) : (
             <View>
               <Text>Chargement des données...</Text>
@@ -89,26 +113,5 @@ const styles = StyleSheet.create({
   filterText: {
     color: "#000000",
     fontSize: 16
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 80,    
-    backgroundColor: "#fff",
-  },
-  card: {
-    flex: 1,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#e8e8e8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: "#fff",
-  },
-  image: {
-    width: '60%',
-    height: '60%',
-    borderRadius: 10,
   },
 });

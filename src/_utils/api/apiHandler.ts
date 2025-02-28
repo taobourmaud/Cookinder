@@ -1,5 +1,10 @@
 import { supabase } from "../../../supabase"
+import { DifficultiesModel } from "../models/difficulties";
+import { DishesModel } from "../models/dishes";
+import { DishesTagModel } from "../models/dishes_tag";
 import { LikesModel } from "../models/likes";
+import { RequestFilter } from "../models/requestFilter";
+import { TagsModel } from "../models/tags";
 
 export default class ApiHandler {
     public async getUser() : Promise<object>{
@@ -14,12 +19,28 @@ export default class ApiHandler {
         }
     }
 
-    public async getData(targetTable: string) : Promise<object[] | null> {
+    public async getData({targetTable, conditionsEq = null, conditionsIn = null}: {targetTable: string, conditionsEq?: RequestFilter | null, conditionsIn?: RequestFilter | null, conditionsNotIn?: RequestFilter | null}) : Promise<DifficultiesModel[] | DishesTagModel[] | DishesModel[] | LikesModel[] | TagsModel[]> {
         try {
-            const retrieveData = await supabase.from(targetTable).select()
-            if (!retrieveData)
+            let dataFetch = supabase.from(targetTable).select();
+            if (conditionsIn !== null) {
+                dataFetch = dataFetch.in(conditionsIn.id, conditionsIn.values as (number[] | string[]) )
+            }
+            if (conditionsEq !== null) {
+                dataFetch = dataFetch.eq(conditionsEq.id, conditionsEq.values)
+            }
+            
+            const {data, error} = await dataFetch
+            if (error) {
+                throw new Error(error.message)
+            }
+
+            if (!data)
                 throw new Error("Data not found")
-            return retrieveData.data
+
+            if (data?.length === 0) 
+                throw new Error("Data not found")
+            
+            return data
         } catch (error: Error | any) {
             throw new Error(error.message)
         }
