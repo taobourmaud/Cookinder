@@ -10,5 +10,5 @@ export class DishesModel {
     ingredients?: string[]
     instructions?: string[]
     difficulty?: number
-
+    username?: string
 }

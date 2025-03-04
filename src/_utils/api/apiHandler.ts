@@ -1,3 +1,4 @@
+import { Filter } from "react-native-svg";
 import { supabase } from "../../../supabase"
 import { DifficultiesModel } from "../models/difficulties";
 import { DishesModel } from "../models/dishes";
@@ -19,7 +20,7 @@ export default class ApiHandler {
         }
     }
 
-    public async getData({targetTable, conditionsEq = null, conditionsIn = null}: {targetTable: string, conditionsEq?: RequestFilter | null, conditionsIn?: RequestFilter | null, conditionsNotIn?: RequestFilter | null}) : Promise<DifficultiesModel[] | DishesTagModel[] | DishesModel[] | LikesModel[] | TagsModel[]> {
+    public async getData({targetTable, conditionsEq = null, conditionsIn = null}: {targetTable: string, conditionsEq?: RequestFilter | null, conditionsIn?: RequestFilter | null, conditionsNotIn?: RequestFilter | null}) : Promise<DifficultiesModel[] | DishesTagModel[] | DishesModel[] | LikesModel[] | TagsModel[] | []> {
         try {
             let dataFetch = supabase.from(targetTable).select();
             if (conditionsIn !== null) {
@@ -35,9 +36,6 @@ export default class ApiHandler {
             }
 
             if (!data)
-                throw new Error("Data not found")
-
-            if (data?.length === 0) 
                 throw new Error("Data not found")
             
             return data

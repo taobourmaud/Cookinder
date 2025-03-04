@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthContext, AuthProvider } from './authContext';
-import HomeScreen from './src/screens/tabs/home.screen';
+import HomeScreen  from './src/screens/tabs/home.screen';
 import SignInScreen from './src/screens/auth/signIn.screen';
 import SignUpScreen from './src/screens/auth/signUp.screen';
 import { Image, View, StyleSheet } from 'react-native';
@@ -126,7 +126,7 @@ const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
-        <Stack.Screen name="HomeScreen" component={TabNavigator} />
+        <Stack.Screen name="HomeScreen" component={TabNavigator}/>
       ) : (
         <>
           <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -139,10 +139,10 @@ const AppNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 100,
-    backgroundColor: "#fff",
+    height: 70,
     borderTopWidth: 0,
     elevation: 10,
+    backgroundColor: '#fff',
   },
   iconContainer: {
     marginTop: 35,
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",    
     width: 50,
     height: 50,
+    backgroundColor: '#fff', 
   },
   focusedIconContainer: {
     marginTop: 35,
@@ -163,6 +164,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
+    color: "#fff"
   },
 });
 

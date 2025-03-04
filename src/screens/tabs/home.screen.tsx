@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from 'react';
-import { StyleSheet, Image, Text, View, TouchableOpacity } from 'react-native';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
+import { StyleSheet, Image, Text, View, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { DishesModel } from '../../_utils/models/dishes';
 import { MySwipper } from '../../_utils/components/swipper';
 import { TagsModel } from '../../_utils/models/tags';
@@ -8,9 +8,12 @@ import { RequestFilter } from '../../_utils/models/requestFilter';
 import { LikesModel } from '../../_utils/models/likes';
 import ApiHandler from '../../_utils/api/apiHandler';
 import { RouteProp } from '@react-navigation/native';
+import "@fontsource/montserrat"; 
+import "inter-ui/inter.css";
 
 type HomeScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
 
+const { height } = Dimensions.get('window');
 
 export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
   const { apiHandler } = route.params 
@@ -18,16 +21,14 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
   const [tags, setTags] = useState<TagsModel[]>()
   const [isDataFetched, setIsDataFetched] = useState<boolean>(false)
   const [filterApplied, setFilterApplied] = useState<number[]>([])
+  const [username, setUsername] = useState<string>("")
 
   useEffect(() => {
     const fetchData = async() => {
       try {
         // Get user to check dishes liked
         const user = await apiHandler.getUser()
-        // Filter on user likes
-        const likes: LikesModel[] = await apiHandler.getData({ targetTable: 'likes', conditionsEq: new RequestFilter('user_id',user.id) })
-        // Keep only likes_ids
-        const dishesLiked_ids: string[] = likes.map((like) => like.dish_id)
+        const likes: LikesModel[] | [] = await apiHandler.getData({ targetTable: 'likes', conditionsEq: new RequestFilter('user_id',user.id) }) 
         // Get all dishes before likes exclude treatment
         let dishes: DishesModel[] = await apiHandler.getData({ targetTable: 'dishes'}) as DishesModel[]
         const tags = await apiHandler.getData({ targetTable: 'tags' })
@@ -39,9 +40,14 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
           dishes = await apiHandler.getData({targetTable: 'dishes', conditionsIn: new RequestFilter('id', dishesFilteredIds)})
         }
 
-        dishes = dishes.filter(dish => !dishesLiked_ids.includes(dish.id))
+        if (likes.length > 0) {
+          // Keep only likes_ids
+          const dishesLiked_ids: string[] = likes.map((like) => like.dish_id)
+          dishes = dishes.filter(dish => !dishesLiked_ids.includes(dish.id))
+        }
         setDishes(dishes as DishesModel[])
         setTags(tags as TagsModel[])
+        setUsername(user.app_metadata.provider)
       } catch (error: Error | any) {
         console.error(error.message)
       } finally {
@@ -66,9 +72,15 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
 
   return (
     <View style={styles.screen}>
-      <View>
-        <Text>Bonjour Username !</Text>
-        <Text>Cherche des inspirations pour tes prochaines recettes !</Text>
+      <View style={styles.header}>
+        <Image
+            source={require('../../../assets/COOKINDER.png')}
+            style={styles.logoImage}
+        />
+      </View>
+      <View style={styles.titleView}>
+        <Text style={styles.usernameTitle} >Bonjour {username} !</Text>
+        <Text style={styles.subTitle}>Cherche des inspirations pour tes prochaines recettes !</Text>
       </View>
       <View style={styles.filterView}>
         {tags?.map((data) => {
@@ -79,39 +91,99 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
           )
         })}
       </View>
-      <View>
         {
-          isDataFetched ? ( 
-            <MySwipper dishes={dishes} apiHandler={apiHandler}/>
-          ) : (
-            <View>
-              <Text>Chargement des données...</Text>
+          !isDataFetched ? ( 
+            <View style={styles.content}>
+              <ActivityIndicator size="large" color="#EBB502"/>
+              <Text style={styles.loaderText}>Chargement des données...</Text>
             </View>
-          )
+          ) : (isDataFetched && dishes.length === 0) ? (
+            <View style={styles.content}>
+              <Text>Aucun donnée disponible</Text>
+            </View>
+          ) : (
+            <View style={styles.content}>
+              <MySwipper dishes={dishes} apiHandler={apiHandler}/>
+            </View>
+          ) 
         }
-      </View>
     </View>
   );
 }
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: '#fff'
+    flex: 1,
+    justifyContent: "flex-start",
+    flexDirection: 'column',
+    alignItems: "center",
+    width: "100%",
+    backgroundColor: '#fff',
+    paddingTop: 30
+  },
+  header: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end', 
+    alignItems: 'flex-end', 
+    paddingHorizontal: 20,
+  },
+  logoImage: {
+    width: 120,
+    height: 40,
+    resizeMode: 'contain',
+    marginBottom: -30
+  },
+  titleView: {
+    paddingTop: 30,
+    width: "100%",
+    paddingLeft: 20,
+    textAlign: 'left',
+  },
+  usernameTitle: {
+    fontFamily: 'Montserrat',
+    fontSize: 24,
+  },
+  subTitle: {
+    fontFamily: 'InterVariable',
+    fontStyle: 'italic',
+    fontSize: 12,
+  },
+  content: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+    textAlign: "center"
   },
   filterView: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 10,
+    padding: 6,
+    width: "94%",
+    height: height * 0.1,
+    marginTop: 20,
+    marginBottom: -40
   },
   filterButton: {
-    backgroundColor: '#F4F5FF94',
-    width: '30%',
-    marginVertical: 5,
+    backgroundColor: '#F4F5FF',
+    opacity: 58,
+    height: "40%",
+    width: '31%',
+    marginTop: 5,
     alignItems: 'center',
-    borderRadius: 8
+    justifyContent: 'center',
+    borderRadius: 10,
   },
   filterText: {
     color: "#000000",
-    fontSize: 16
+    fontSize: 14,
   },
 });
