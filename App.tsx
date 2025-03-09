@@ -154,8 +154,7 @@ const AppNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 100,
-    backgroundColor: "#fff",
+    height: 70,
     borderTopWidth: 0,
     elevation: 10,
     borderRadius: 20,
@@ -173,6 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",    
     width: 50,
     height: 50,
+    backgroundColor: '#fff', 
   },
   focusedIconContainer: {
     marginTop: 35,
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
+    color: "#fff"
   },
 });
 

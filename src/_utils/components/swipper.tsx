@@ -33,29 +33,13 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
             />
         </View>
     )
-
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 80,    
+    width: '100%',
     backgroundColor: "#fff",
-  },
-  card: {
-    flex: 1,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#e8e8e8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: "#fff",
-  },
-  image: {
-    width: '60%',
-    height: '60%',
-    borderRadius: 10,
   },
 });
