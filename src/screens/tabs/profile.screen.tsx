@@ -22,8 +22,6 @@ const ProfileScreen = () => {
 
   async function getDishesCreated() {
     const { data, error } = await supabase.from('dishes').select('*').eq('user_id', user?.id);
-
-    console.log(data);
   }
 
   async function getUser() {

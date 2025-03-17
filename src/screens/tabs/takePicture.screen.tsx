@@ -12,7 +12,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import * as MediaLibrary from "expo-media-library";
 
-export default function CameraFunction() {
+export default function CameraFunction({ route }) {
+  const { apiHandler } = route.params;
   const [cameraPermission, setCameraPermission] = useState();
   const [mediaLibraryPermission, setMediaLibraryPermission] = useState();
   const [facing, setFacing] = useState("back");
@@ -20,7 +21,7 @@ export default function CameraFunction() {
   let cameraRef = useRef();
   const navigation = useNavigation();
 
-  // Demande des permissions au chargement de la page
+  // Ask permission
   useEffect(() => {
     (async () => {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
@@ -31,7 +32,6 @@ export default function CameraFunction() {
     })();
   }, []);
 
-  // Gestion des permissions
   if (
     cameraPermission === undefined ||
     mediaLibraryPermission === undefined
@@ -45,13 +45,11 @@ export default function CameraFunction() {
     );
   }
 
-  // Fonction pour basculer entre caméra avant et arrière
   function toggleCameraFacing() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
-  // Fonction pour prendre une photo
-  let takePic = async () => {
+  const takePic = async () => {
     let options = {
       quality: 1,
       base64: true,
@@ -59,14 +57,12 @@ export default function CameraFunction() {
     };
 
     let newPhoto = await cameraRef.current.takePictureAsync(options);
-    console.log("Photo prise :", newPhoto.uri);
     setPhoto(newPhoto);
   };
 
-  // Affichage de la photo après capture avec options de sauvegarde ou de suppression
   if (photo) {
     let savePhoto = () => {
-      navigation.navigate("PhotoForm", { imageUri: photo.uri });
+      navigation.navigate("PhotoForm", { imageUri: photo.uri, apiHandler: apiHandler });
     };
 
     return (
@@ -91,7 +87,6 @@ export default function CameraFunction() {
     );
   }
 
-  // Interface de la caméra simplifiée
   return (
     <View style={styles.container}>
       <CameraView

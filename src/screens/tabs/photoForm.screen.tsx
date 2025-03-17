@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Button } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../../App';
 import { supabase } from '../../../supabase';
 import { DishesModel } from '../../_utils/models/dishes';
@@ -18,8 +17,8 @@ type PhotoFormRouteProp = RouteProp<RootStackParamList, 'PhotoForm'>;
 export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp}) {
   const navigation = useNavigation<PhotoFormNavigationProp>();
   const route = useRoute<PhotoFormRouteProp>();
-  const [imageUri, setImageUri] = useState<string>(route.params?.imageUri);
-  const apiHandler  = route.params?.apiHandler
+  const imageUri = route.params?.imageUri;
+  const { apiHandler }  = route.params
 
   const [title, setTitle] = useState<string>('');
   const [difficulty, setDifficulty] = useState<string>('Intermédiaire');
@@ -37,16 +36,18 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
   const [selectedTag, setSelectedTag] = useState<number>(1);
 
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      const initTags = await apiHandler.getData({ targetTable: 'tags' }) as TagsModel[];
-      setTagsOption(initTags);
-    };
-    fetchTags();
-  }, [navigation])
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTags = async () => {
+        const initTags = await apiHandler.getData({ targetTable: 'tags' }) as TagsModel[];
+        setTagsOption(initTags);
+      };
+      fetchTags();
+    }, [])
+  )
 
   function goToTakePicture() {
-    navigation.navigate('TakePicture'); 
+    navigation.navigate('TakePicture', { apiHandler: apiHandler }); 
   }
 
 
@@ -85,7 +86,7 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
     const user = await apiHandler.getUser()
     const fileName = `dishes_images/${Date.now()}.jpg`;
 
-    await apiHandler.uploadImage(fileName, imageUri)
+    const image = await apiHandler.uploadImage(fileName, imageUri)
 
     const imageUrl = `${supabase.storage.from('dishes_images').getPublicUrl(fileName).data.publicUrl}`;
     const userName = user.app_metadata.provider
@@ -95,8 +96,8 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
     const newDish = await apiHandler.postData('dishes', newDishesData)
     // Rely dish to tag
     const newdishesTag = new DishesTagModel(newDish[0].id, selectedTag)
-    console.log(newdishesTag)
     await apiHandler.postData('dishes_tags', newdishesTag)
+    navigation.navigate("HomeScreen", { apiHandler: apiHandler });
   }
 
   return (
