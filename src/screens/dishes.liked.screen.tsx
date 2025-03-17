@@ -1,13 +1,21 @@
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
-    RefreshControl
+import {
+    FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
+    RefreshControl, Modal
 } from 'react-native';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
-import { getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
+import { useFocusEffect } from '@react-navigation/native';
+import {
+    getLikedDishesByUser,
+    getNumberOfLikesDish,
+    getTagsOfDish,
+    deleteDishByUser
+} from '../../services/dishesService';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { AuthContext } from '../../authContext';
 import { DishesModel } from '../_utils/models/dishes';
-import { supabase } from '../../supabase';
 import { RouteProp } from '@react-navigation/native';
 import ApiHandler from '../_utils/api/apiHandler';
+import ConfirmDeleteModal from "../_utils/components/confirmDeleteModal";
 
 type DishesScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
 
@@ -21,6 +29,9 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
     const [refreshing, setRefreshing] = useState(false);
+
+    const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const fetchData = async () => {
         if (!userId) return;
@@ -49,13 +60,22 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, [userId])
+    useFocusEffect(
+        useCallback(() => {
+            fetchData();
+        }, [])
+    );
 
     const onRefresh = useCallback(() => {
         fetchData();
     }, []);
+
+    const handleDeleteDish = async (table, dishId, userId) => {
+        const response = await deleteDishByUser(table, dishId, userId);
+        if (response.success) {
+            fetchData();
+        }
+    };
 
     return (
             <SafeAreaView style={styles.container}>
@@ -69,7 +89,7 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
                 <FlatList
                     style={styles.scrollContent}
                     data={[...dishes].reverse()}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.dishes.id}
                     renderItem={({ item }) => {
                         const dishId = item.dishes.id;
                         const userDishCreator = item.dishes.username
@@ -77,26 +97,51 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
                         const tagsForDish = tagsCount[dishId];
 
                         return (
-                            <TouchableOpacity
-                                style={styles.card}
-                                onPress={() => {
-                                    navigation.navigate('DishDetailScreen', {
-                                        dishSelected: item,
-                                        userData,
-                                        tagsForDish,
-                                    });
-                                }}
-                            >
-                                <View style={styles.card}>
-                                    <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
-                                    <View style={styles.info}>
-                                        <Text style={styles.title}>{item.dishes.title}</Text>
-                                        <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
-                                        <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
-                                        <Text style={styles.info}>Créé par : {userDishCreator}</Text>
+                            <View style={styles.cardContainer}>
+                                <TouchableOpacity
+                                    style={styles.card}
+                                    onPress={() => {
+                                        navigation.navigate('DishDetailScreen', {
+                                            dishSelected: item,
+                                            userData,
+                                            tagsForDish,
+                                        });
+                                    }}
+                                >
+                                    <View style={styles.card}>
+                                        <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
+                                        <View style={styles.info}>
+                                            <Text style={styles.title}>{item.dishes.title}</Text>
+                                            <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
+                                            <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
+                                            <Text style={styles.info}>Créé par : {userDishCreator}</Text>
+                                        </View>
                                     </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.deleteButton}
+                                    onPress={() => {
+                                        setSelectedDishId(dishId);
+                                        setModalVisible(true);
+                                    }}
+                                >
+                                    <Icon name="trash" size={20} color="white" />
+                                </TouchableOpacity>
+                                <ConfirmDeleteModal
+                                    visible={modalVisible}
+                                    onConfirm={() => {
+                                        if (selectedDishId) {
+                                            handleDeleteDish("likes", selectedDishId, userData.id);
+                                        }
+                                        setModalVisible(false);
+                                        setSelectedDishId(null);
+                                    }}
+                                    onCancel={() => {
+                                        setModalVisible(false);
+                                        setSelectedDishId(null);
+                                    }}
+                                />
                                 </View>
-                            </TouchableOpacity>
                         );
                     }}
                     refreshControl={
@@ -124,11 +169,6 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         marginLeft: 'auto',
     },
-    scrollContent: {
-        paddingBottom: 40,
-        paddingTop: 10,
-        paddingHorizontal: 10,
-    },
     headerDisplayName: {
         fontSize: 24,
         marginBottom: 20,
@@ -140,11 +180,24 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         paddingLeft: 10,
     },
+    scrollContent: {
+        paddingBottom: 40,
+        paddingTop: 10,
+        paddingHorizontal: 10,
+    },
+    cardContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#f0f0ff',
+        marginBottom: 10,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     card: {
         flexDirection: 'row',
         backgroundColor: '#f0f0ff',
+        flex: 1,
         padding: 5,
-        marginBottom: 10,
         borderRadius: 15,
     },
     image: {
@@ -152,6 +205,8 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 10,
         backgroundColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
         marginLeft: 10,
@@ -160,5 +215,56 @@ const styles = StyleSheet.create({
     },
     info: {
         marginLeft: 10,
-    }
+        flex: 1,
+    },
+    deleteButton: {
+        backgroundColor: '#E57373',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 10,
+        width: 40,
+        height: 130,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: 300,
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalText: {
+        fontSize: 18,
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    confirmButton: {
+        backgroundColor: '#D32F2F',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        marginRight: 10,
+    },
+    cancelButton: {
+        backgroundColor: '#777',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
 });
