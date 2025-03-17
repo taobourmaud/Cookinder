@@ -59,6 +59,7 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
   }, [filterApplied])
     
   const onPressFilter = (index: number) => {
+    setIsDataFetched(false)
     setFilterApplied(prevFilter => {
       if (filterApplied.includes(index)){
         const filteredNumber = prevFilter.filter(itemIndex => itemIndex !== index)
@@ -92,13 +93,13 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
         })}
       </View>
         {
-          !isDataFetched ? ( 
-            <View style={styles.content}>
-              <ActivityIndicator size="large" color="#FFD700"/>
+          !isDataFetched ? (
+            <View style={[styles.content, { marginTop: 100 }]}>
+              <ActivityIndicator size="large" color="#EBB502"/>
               <Text style={styles.loaderText}>Chargement des données...</Text>
             </View>
           ) : (isDataFetched && dishes.length === 0) ? (
-            <View style={styles.content}>
+            <View style={[styles.content, { marginTop: 100 }]}>
               <Text>Aucun donnée disponible</Text>
             </View>
           ) : (
