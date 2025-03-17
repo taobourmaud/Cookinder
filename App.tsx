@@ -154,7 +154,7 @@ const AppNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 70,
+    height: 90,
     borderTopWidth: 0,
     elevation: 10,
     borderRadius: 20,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
-    backgroundColor: "#EBB502",
+    backgroundColor: "#FFD700",
     borderRadius: 10, 
   },
   icon: {

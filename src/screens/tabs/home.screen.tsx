@@ -28,15 +28,15 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
       try {
         // Get user to check dishes liked
         const user = await apiHandler.getUser()
-        const likes: LikesModel[] | [] = await apiHandler.getData({ targetTable: 'likes', conditionsEq: new RequestFilter('user_id',user.id) }) 
+        const likes = await apiHandler.getData({ targetTable: 'likes', conditionsEq: new RequestFilter('user_id', user.id) }) as LikesModel[] | []
         // Get all dishes before likes exclude treatment
         let dishes: DishesModel[] = await apiHandler.getData({ targetTable: 'dishes'}) as DishesModel[]
         const tags = await apiHandler.getData({ targetTable: 'tags' })
 
         if (filterApplied.length > 0) {
           // If filter is applied => Filter dishes by Tag
-          const dishesTagFilteredId: DishesTagModel[] = await apiHandler.getData({targetTable: 'dishes_tags', conditionsIn: new RequestFilter('tag_id', filterApplied)})
-          const dishesFilteredIds: string[] = dishesTagFilteredId?.map((data: DishesTagModel) => data.dish_id)
+          const dishesTagFilteredId= await apiHandler.getData({targetTable: 'dishes_tags', conditionsIn: new RequestFilter('tag_id', filterApplied)}) as DishesTagModel[]
+          const dishesFilteredIds = dishesTagFilteredId?.map((data: DishesTagModel) => data.dish_id) as string[]
           dishes = await apiHandler.getData({targetTable: 'dishes', conditionsIn: new RequestFilter('id', dishesFilteredIds)})
         }
 
@@ -86,7 +86,7 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
         {tags?.map((data) => {
           return (
               <TouchableOpacity key={data.id} style={styles.filterButton} onPress={() => onPressFilter(data['id'])}>
-                <Text style={[styles.filterText, { color: data.id && filterApplied.includes(data.id) ? '#EBB502' : 'black' }]}>{data.title}</Text>
+                <Text style={[styles.filterText, { color: data.id && filterApplied.includes(data.id) ? '#FFD700' : 'black' }]}>{data.title}</Text>
               </TouchableOpacity>
           )
         })}
@@ -94,7 +94,7 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
         {
           !isDataFetched ? ( 
             <View style={styles.content}>
-              <ActivityIndicator size="large" color="#EBB502"/>
+              <ActivityIndicator size="large" color="#FFD700"/>
               <Text style={styles.loaderText}>Chargement des données...</Text>
             </View>
           ) : (isDataFetched && dishes.length === 0) ? (
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     backgroundColor: '#fff',
-    paddingTop: 30
+    paddingTop: 40
   },
   header: {
     width: '100%',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   subTitle: {
-    fontFamily: 'InterVariable',
+    fontFamily: 'Montserrat',
     fontStyle: 'italic',
     fontSize: 12,
   },
@@ -166,13 +166,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 6,
+    // padding: 6,
     width: "94%",
     height: height * 0.1,
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: -40
   },
   filterButton: {
+    fontFamily: 'Montserrat',
     backgroundColor: '#F4F5FF',
     opacity: 58,
     height: "40%",

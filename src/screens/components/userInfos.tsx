@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Montserrat',
     borderBottomWidth: 0.5,
-    borderBottomColor: '#EBB502',
+    borderBottomColor: '#FFD700',
   },
 
 })

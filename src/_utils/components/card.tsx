@@ -24,11 +24,12 @@ export const Card = (dishes: {image: DishesModel}) => {
 const styles = StyleSheet.create({
   card: {
     width: '100%',  
-    height: "75%",  
+    height: "70%",  
     borderColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    marginTop: -10,
   },
   image: {
     width: '100%',  
