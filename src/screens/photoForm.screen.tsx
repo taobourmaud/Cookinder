@@ -76,6 +76,8 @@ export default function PhotoFormScreen() {
     }
 
     const userId = user.user.id;
+    const userName = user.user.user_metadata.displayName;
+
 
     // Upload de l'image sur Supabase Storage
     const fileName = `dishes_images/${Date.now()}.jpg`;
@@ -107,6 +109,7 @@ export default function PhotoFormScreen() {
         difficulty: level,
         image_url: imageUrl,
         user_id: userId,
+        username: userName,
       },
     ]);
 
@@ -123,6 +126,7 @@ export default function PhotoFormScreen() {
 
   return (
     <View style={styles.container}>
+      <Image source={require('../../assets/images/COOKINDER.png')} style={styles.logo} />
       <Text style={styles.header}>Créer un plat ici !</Text>
       <Text style={styles.subHeader}>Créer un plat pour le partager aux utilisateurs !</Text>
       <TouchableOpacity style={[styles.imageContainer, !imageUri && styles.placeholder]} onPress={goToTakePicture}>
@@ -223,6 +227,10 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     paddingTop: 50,
+  },
+  logo: {
+    resizeMode: 'contain',
+    textAlign: 'right',
   },
   header: {
     fontSize: 20,
