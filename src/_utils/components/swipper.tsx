@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import Swiper from "react-native-deck-swiper"
 import { Card } from "./card"
 import { DishesModel } from "../models/dishes"
@@ -25,11 +25,49 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
             <Swiper
                 cards={dishes}
                 renderCard={(card) => <Card image={card} />}
+                disableBottomSwipe={true}
+                disableTopSwipe={true}
                 onSwipedRight={(cardIndex) => { onRightSwipe(cardIndex) }}
                 onSwipedLeft={(cardIndex) => { onLeftSwipe(cardIndex) }}
                 cardIndex={0}
                 backgroundColor={'#f0f0f0'}
                 stackSize={3}
+                overlayLabels={{
+                    left: {
+                      title: '👎🏻',
+                      style: {
+                        label: {
+                          backgroundColor: '#ec200f',
+                          color: 'white',
+                          fontSize: 24,
+                        },
+                        wrapper: {
+                          flexDirection: 'column',
+                          alignItems: 'flex-end',
+                          justifyContent: 'flex-start',
+                          marginTop: 45,
+                          marginLeft: -20,
+                        },
+                      },
+                    },
+                    right: {
+                      title: '🤍',
+                      style: {
+                        label: {
+                          backgroundColor: '#07d90a',
+                          color: 'white',
+                          fontSize: 24,
+                        },
+                        wrapper: {
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                          justifyContent: 'flex-start',
+                          marginTop: 45,
+                          marginLeft: 20,
+                        },
+                      },
+                    },
+                  }}
             />
         </View>
     )
@@ -41,5 +79,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     backgroundColor: "#fff",
-  },
+  }
 });

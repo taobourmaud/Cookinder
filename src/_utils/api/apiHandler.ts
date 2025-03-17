@@ -1,4 +1,3 @@
-import { Filter } from "react-native-svg";
 import { supabase } from "../../../supabase"
 import { DifficultiesModel } from "../models/difficulties";
 import { DishesModel } from "../models/dishes";
