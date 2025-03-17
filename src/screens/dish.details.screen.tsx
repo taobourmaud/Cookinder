@@ -13,18 +13,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { getLikedDishesByUser } from '../../services/dishesService';
 
 export default function DishDetailScreen({ route, navigation }) {
-    const { tagsForDish } = route.params;
-    const dishId = route.params.dishId;
+    const { dishId, dishSelected, userData, tagsForDish, dishesCreated } = route.params;
+
+    console.log(dishSelected)
     const userId = route.params.userData.id
     const [dish, setDish] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const fetchDishDetails = async () => {
+        setLoading(true);
         try {
-            const dishes = await getLikedDishesByUser(userId);
-            const selectedDish = dishes.find(item => item.dishes.id === dishId);
-            setDish(selectedDish ? selectedDish.dishes : null);
+            setDish(dishSelected)
+            console.log(dish)
         } catch (error) {
             console.error('Erreur lors de la récupération des détails du plat:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -32,12 +36,20 @@ export default function DishDetailScreen({ route, navigation }) {
         fetchDishDetails();
     }, [dishId]);
 
-    if (!dish) {
+    if (loading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#ff8c00" />
                 <Text style={styles.loadingText}>Chargement...</Text>
             </View>
+        );
+    }
+
+    if (!dish) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.errorText}>Recette non trouvée.</Text>
+            </SafeAreaView>
         );
     }
 
@@ -55,7 +67,7 @@ export default function DishDetailScreen({ route, navigation }) {
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <Image source={{ uri: dish.image_url }} style={styles.image} />
                 <Text style={styles.title}>{dish.title}</Text>
-                <Text style={styles.difficulty}>{dish.difficulty.title}</Text>
+                <Text style={styles.difficulty}>{dish.difficulty}</Text>
                 {tagsForDish && tagsForDish.length > 0 ? (
                     <View style={styles.tagsContainer}>
                         {tagsForDish.map((tag, index) => (
@@ -109,6 +121,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 18,
         fontStyle: 'italic',
+    },
+    errorText: {
+        fontSize: 18,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 20,
     },
     container: {
         flex: 1,

@@ -80,7 +80,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.signUpButton}>
+        <TouchableOpacity style={styles.signUpButton} onPress={() => handleSignUp()}>
           <Text style={styles.signUpButtonText}>Inscription</Text>
         </TouchableOpacity>
 

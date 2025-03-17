@@ -2,7 +2,7 @@ import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-
 import { DishesModel } from '../../_utils/models/dishes';
 
 
-interface UserLikeDishesInterface {
+interface UserDishesListInterface {
     navigation: any;
     dishes: DishesModel[];
     userData: any;
@@ -15,14 +15,12 @@ interface UserLikeDishesInterface {
     userDishCreated: string;
 
 }
-
-const UserLikeDishes = ({ navigation, dishes, userData, likesCount, tagsCount, userDishCreated}: UserLikeDishesInterface) => {
-    
+const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, userDishCreated}: UserDishesListInterface) => {
 
     return (
         <FlatList
             data={dishes}
-            keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+            keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
             renderItem={({ item }) => {
                 const dishId = item.id;
                 const likesForDish = dishId ? likesCount[dishId] : 0;
@@ -31,7 +29,14 @@ const UserLikeDishes = ({ navigation, dishes, userData, likesCount, tagsCount, u
                 return (
                     <TouchableOpacity
                         style={styles.card}
-                        onPress={() => { navigation.navigate('DishDetailScreen', { dishId, userData, tagsForDish});}}
+                        onPress={() => {
+                          navigation.navigate('DishDetailScreen', {
+                            dishSelected: item,
+                            userData,
+                            tagsForDish,
+                            dishesCreated: true
+                          });
+                        }}
                     >
                         <View style={styles.card}>
                             <Image source={{ uri: item.image_url }} style={styles.image} />
@@ -73,4 +78,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default UserLikeDishes;
+export default DishesList;

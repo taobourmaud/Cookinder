@@ -70,7 +70,13 @@ export default function DishesScreen({ navigation }) {
                         return (
                             <TouchableOpacity
                                 style={styles.card}
-                                onPress={() => { navigation.navigate('DishDetailScreen', { dishId, userData, tagsForDish});}}
+                                onPress={() => {
+                                    navigation.navigate('DishDetailScreen', {
+                                        dishSelected: item,
+                                        userData,
+                                        tagsForDish,
+                                    });
+                                }}
                             >
                                 <View style={styles.card}>
                                     <Image source={{ uri: item.dishes.image_url }} style={styles.image} />

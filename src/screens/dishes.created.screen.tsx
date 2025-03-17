@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import UserLikeDishes from "./components/userLikeDishes";
+import React, { useContext, useEffect, useState } from "react";
+import DishesList from "./components/dishes.list";
 import { supabase } from "../../supabase";
 import { AuthContext } from "../../authContext";
 import { DishesModel } from "../_utils/models/dishes";
-import { View, Text, StyleSheet, Image } from "react-native";
+import {View, Text, StyleSheet, Image, TouchableOpacity} from "react-native";
 import { getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
+import {Ionicons} from "@expo/vector-icons";
 
 // Define the types for likesCount and tagsCount
 interface LikesCount {
@@ -33,7 +34,6 @@ export default function DishesCreatedScreen({ navigation }) {
 
         try {
             if (data) {
-                console.log('Fetched dishes data:', data); 
                 setDishes(data);
                 const dishTagsCount: TagsCount = {};
                 const dishLikesCount: LikesCount = {};
@@ -63,6 +63,9 @@ export default function DishesCreatedScreen({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={30} color="black" />
+                </TouchableOpacity>
                 <Image
                     source={require('../../assets/COOKINDER.png')}
                     style={styles.logoImage}
@@ -71,7 +74,7 @@ export default function DishesCreatedScreen({ navigation }) {
             <Text style={styles.headerDisplayName}>{userData.userMetadata.displayName}, voici les plats que vous avez créés !</Text>
             <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
 
-            <UserLikeDishes
+            <DishesList
                 navigation={navigation}
                 dishes={dishes}
                 userData={userData}
