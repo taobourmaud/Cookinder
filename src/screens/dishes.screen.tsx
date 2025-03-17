@@ -1,5 +1,7 @@
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import {FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
+    RefreshControl
+} from 'react-native';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import { getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
 import { AuthContext } from '../../authContext';
 
@@ -11,50 +13,57 @@ export default function DishesScreen({ navigation }) {
     const [dishes, setDishes] = useState([]);
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
-    const [userDishCreated, setUserDishCreated] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchData = async () => {
+        if (!userId) return;
+
+        try {
+            setRefreshing(true);
+            const data = await getLikedDishesByUser(userId);
+            setDishes(data);
+
+            const dishLikesCount: { [key: string]: number } = {};
+            const dishTagsCount = {};
+
+            for (let dish of data) {
+                dishLikesCount[dish.dishes.id] = await getNumberOfLikesDish(dish.dishes.id);
+                dishTagsCount[dish.dishes.id] = await getTagsOfDish(dish.dishes.id);
+            }
+
+            setLikesCount(dishLikesCount);
+            setTagsCount(dishTagsCount);
+
+        } catch (error) {
+            console.error('Erreur lors de la récupération des recettes likées :', error.message);
+        }  finally {
+            setRefreshing(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (!userId) return;
-
-            try {
-                const data = await getLikedDishesByUser(userId);
-                setDishes(data);
-
-                const dishLikesCount: { [key: string]: number } = {};
-                const dishTagsCount = {};
-
-                for (let dish of data) {
-                    dishLikesCount[dish.dishes.id] = await getNumberOfLikesDish(dish.dishes.id);
-                    dishTagsCount[dish.dishes.id] = await getTagsOfDish(dish.dishes.id);
-                    setUserDishCreated(dish.dishes.username);
-                }
-                setLikesCount(dishLikesCount);
-                setTagsCount(dishTagsCount);
-
-            } catch (error) {
-                console.error('Erreur lors de la récupération des recettes likées :', error.message);
-            }
-        };
-
         fetchData();
     }, [userId])
 
+    const onRefresh = useCallback(() => {
+        fetchData();
+    }, []);
+
     return (
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
                 <View style={styles.header}>
                     <Image
                         source={require('../../assets/COOKINDER.png')}
                         style={styles.logoImage}
                     />
-                </View>
-                <Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
+                </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
                 <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
                 <FlatList
-                    data={dishes}
+                    data={[...dishes].reverse()}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => {
                         const dishId = item.dishes.id;
+                        const userDishCreator = item.dishes.username
                         const likesForDish = likesCount[dishId];
                         const tagsForDish = tagsCount[dishId];
 
@@ -69,14 +78,18 @@ export default function DishesScreen({ navigation }) {
                                         <Text style={styles.title}>{item.dishes.title}</Text>
                                         <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
                                         <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
-                                        <Text style={styles.info}>Créé par : {userDishCreated}</Text>
+                                        <Text style={styles.info}>Créé par : {userDishCreator}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
                         );
                     }}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
                 />
-            </View>
+
+            </SafeAreaView>
     );
 }
 
@@ -95,6 +108,9 @@ const styles = StyleSheet.create({
         height: 40,
         resizeMode: 'contain',
         marginLeft: 'auto',
+    },
+    scrollContent: {
+        paddingBottom: 40,
     },
     headerDisplayName: {
         fontSize: 24,
