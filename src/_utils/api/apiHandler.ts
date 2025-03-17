@@ -3,11 +3,12 @@ import { DifficultiesModel } from "../models/difficulties";
 import { DishesModel } from "../models/dishes";
 import { DishesTagModel } from "../models/dishes_tag";
 import { LikesModel } from "../models/likes";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { RequestFilter } from "../models/requestFilter";
 import { TagsModel } from "../models/tags";
 
 export default class ApiHandler {
-    public async getUser() : Promise<object>{
+    public async getUser() : Promise<SupabaseUser>{
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {

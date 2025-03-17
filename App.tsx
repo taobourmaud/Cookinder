@@ -1,24 +1,34 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthContext, AuthProvider } from './authContext';
-import HomeScreen  from './src/screens/tabs/home.screen';
-import SignInScreen from './src/screens/auth/signIn.screen';
-import SignUpScreen from './src/screens/auth/signUp.screen';
 import { Image, View, StyleSheet } from 'react-native';
-import ProfileScreen from './src/screens/tabs/profile.screen';
-import CreateRecipeScreen from './src/screens/tabs/create-recipe.screen';
 import SCREENS from './src/screens';
 import LikeRecipeScreen from './src/screens/tabs/like-recipe.screen';
-import ApiHandler  from './src/_utils/api/apiHandler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import ProfileScreen from './src/screens/tabs/profile.screen';
+import HomeScreen from './src/screens/tabs/home.screen';
+import ApiHandler from './src/_utils/api/apiHandler';
+import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
+import SignInScreen from './src/screens/tabs/auth/signIn.screen';
+import CameraFunction from './src/screens/takePicture.screen';
+import PhotoFormScreen from './src/screens/photoForm.screen';
+import DishesScreen from './src/screens/dishes.screen';
+import DishDetailScreen from './src/screens/dish.details.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   SignIn: undefined;
   SignUp: undefined;
+  TakePicture: undefined;
+  PhotoForm: { imageUri: string };
+  DishDetailScreen: undefined
 };
+
+SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -55,7 +65,7 @@ const TabNavigator: React.FC = () => {
         />
         <Tab.Screen
           name={SCREENS.CREATE_RECIPE}
-          component={CreateRecipeScreen}
+          component={PhotoFormScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -73,7 +83,7 @@ const TabNavigator: React.FC = () => {
         />
         <Tab.Screen
           name={SCREENS.RECIPE_LIKED}
-          component={LikeRecipeScreen}
+          component={DishesScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -126,7 +136,12 @@ const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
-        <Stack.Screen name="HomeScreen" component={TabNavigator}/>
+        <>
+          <Stack.Screen name="HomeScreen" component={TabNavigator} />
+          <Stack.Screen name="TakePicture" component={CameraFunction} /> 
+          <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
+          <Stack.Screen name="DishDetailScreen" component={DishDetailScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -139,10 +154,17 @@ const AppNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 70,
+    height: 90,
     borderTopWidth: 0,
     elevation: 10,
-    backgroundColor: '#fff',
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 13,
   },
   iconContainer: {
     marginTop: 35,
@@ -158,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
-    backgroundColor: "#EBB502",
+    backgroundColor: "#FFD700",
     borderRadius: 10, 
   },
   icon: {
@@ -169,10 +191,29 @@ const styles = StyleSheet.create({
 });
 
 const App: React.FC = () => {
+
+  const [fontsLoaded, error] = useFonts({
+    'Montserrat': require('./assets/fonts/Montserrat/Montserrat-VariableFont_wght.ttf'),
+    'Montserrat-Italic': require('./assets/fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf'),
+    'Montserrat-Light': require('./assets/fonts/Montserrat/static/Montserrat-Light.ttf'),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null; 
+  }
+  
   return (
     <AuthProvider>
       <NavigationContainer>
-        <AppNavigator />
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <AppNavigator />
+        </View>
       </NavigationContainer>
     </AuthProvider>
   );
