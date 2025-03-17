@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../../App';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
 import { getLikedDishesByUser } from '../../services/dishesService';
-
-type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
-type PhotoFormRouteProp = RouteProp<RootStackParamList, 'DishDetailScreen'>;
 
 export default function DishDetailScreen({ route, navigation }) {
     const { tagsForDish } = route.params;

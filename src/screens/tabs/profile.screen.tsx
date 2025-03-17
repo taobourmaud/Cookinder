@@ -5,9 +5,12 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { AuthContext } from '../../../authContext';
 import UserInfos from '../components/userInfos';
 import Button from '../components/inputs/button';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../App';
 
+type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'ProfileScreen'>;
 
-const ProfileScreen = () => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
@@ -19,12 +22,6 @@ const ProfileScreen = () => {
   if (!auth) return null;
 
   const { signOut } = auth;
-
-  async function getDishesCreated() {
-    const { data, error } = await supabase.from('dishes').select('*').eq('user_id', user?.id);
-
-    console.log(data);
-  }
 
   async function getUser() {
     const { data, error } = await supabase.auth.getUser();
@@ -115,7 +112,6 @@ const ProfileScreen = () => {
       </View>
       <View style={styles.recipeCreated}>
         <View style={styles.recipeContainer}>
-        {/* TODO Chopper tous les likes reçus par l'utilisateur */}
           <Image
             style={styles.recipeImage}
             source={require("../../../assets/images/like.png")}
@@ -129,8 +125,10 @@ const ProfileScreen = () => {
             style={styles.recipeImage}
             source={require("../../../assets/images/recipe.png")}
           />
-          {/* TODO Rediriger vers toutes les recettes crées par l'utilisateur */}
-          <TouchableOpacity onPress={getDishesCreated}>          
+          
+          <TouchableOpacity
+            onPress={() => { navigation.navigate('DishesCreatedScreen'); }}
+          >
             <Text style={styles.recipeText}>Recettes créées</Text>
           </TouchableOpacity>
         </View>
