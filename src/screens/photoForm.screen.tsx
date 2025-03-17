@@ -126,8 +126,13 @@ export default function PhotoFormScreen() {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../assets/images/COOKINDER.png')} style={styles.logo} />
-      <Text style={styles.header}>Créer un plat ici !</Text>
+      <View style={styles.header}>
+        <Image
+            source={require('../../assets/COOKINDER.png')}
+            style={styles.logoImage}
+        />
+      </View>
+      <Text style={styles.textHeader}>Créer un plat ici !</Text>
       <Text style={styles.subHeader}>Créer un plat pour le partager aux utilisateurs !</Text>
       <TouchableOpacity style={[styles.imageContainer, !imageUri && styles.placeholder]} onPress={goToTakePicture}>
         {imageUri ? (
@@ -136,49 +141,50 @@ export default function PhotoFormScreen() {
           <Text style={styles.placeholderText}>📷 Prendre une photo</Text>
         )}
       </TouchableOpacity>
-
-
       <TextInput
         style={styles.input}
         placeholder="Titre du plat"
+        placeholderTextColor={'#000000'}
         value={title}
         onChangeText={setTitle}
       />
-
       <View style={styles.toggleContainer}>
         {['Facile', 'Intermédiaire', 'Difficile'].map(level => (
           <TouchableOpacity
             key={level}
-            style={[styles.toggleButton, difficulty === level && styles.selectedToggle]}
+            style={styles.toggleButton}
             onPress={() => handleDifficultyChange(level)}
           >
-            <Text style={styles.toggleText}>{level}</Text>
+            <Text style={[styles.toggleText, difficulty === level && styles.selectedToggle, difficulty === level && { color: '#FFD700' }]}>{level}</Text>
           </TouchableOpacity>
         ))}
       </View>
-
       <View style={styles.row}>
-        <TouchableOpacity onPress={() => setServings(servings - 1)}>
-          <Ionicons name="remove-circle-outline" size={24} color="black" />
-        </TouchableOpacity>
-        <Text>{servings} personnes</Text>
-        <TouchableOpacity onPress={() => setServings(servings + 1)}>
-          <Ionicons name="add-circle-outline" size={24} color="black" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.timeInput}
-          keyboardType="numeric"
-          value={String(time)}
-          onChangeText={(val) => setTime(Number(val))}
-        />
-        <Text>min</Text>
+        <View style={styles.personsRow}>
+          <TouchableOpacity
+            onPress={() => setServings(servings - 1)}>
+            <Text style={{'fontSize': 20}} >-</Text>
+          </TouchableOpacity>
+          <Text style={styles.personsText}>{servings} personnes</Text>
+          <TouchableOpacity onPress={() => setServings(servings + 1)}>
+          <Text style={{'fontSize': 20}}>+</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.timeRow}>
+          <TextInput
+            style={styles.timeInput}
+            keyboardType="numeric"
+            value={String(time)}
+            onChangeText={(val) => setTime(Number(val))}
+          />
+          <Text style={styles.minInput}>min</Text>
+        </View>
       </View>
-
       <ScrollView style={styles.scrollContainer}>
         <View style={styles.section}>
           <View style={styles.inputRow}>
             <TextInput
-              style={styles.input}
+              style={styles.inputIngredient}
               placeholder="Ajouter un ingrédient"
               value={newIngredient}
               onChangeText={setNewIngredient}
@@ -194,11 +200,11 @@ export default function PhotoFormScreen() {
             scrollEnabled={false}
           />
         </View>
-
+    
         <View style={styles.section}>
           <View style={styles.inputRow}>
             <TextInput
-              style={styles.input}
+              style={styles.inputIngredient}
               placeholder="Ajouter une instruction"
               value={newInstruction}
               onChangeText={setNewInstruction}
@@ -214,9 +220,11 @@ export default function PhotoFormScreen() {
             scrollEnabled={false}
           />
         </View>
+         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Ajouter ce plat !</Text>
+        </TouchableOpacity>
       </ScrollView>
-
-      <Button title="Soumettre" onPress={handleSubmit} />
+      
     </View>
   );
 }
@@ -226,33 +234,46 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    paddingTop: 50,
+    paddingTop: 40
   },
   logo: {
     resizeMode: 'contain',
     textAlign: 'right',
   },
   header: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end', 
+    alignItems: 'flex-end', 
+    paddingHorizontal: 20,
+  },
+  textHeader: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Montserrat',
+    paddingTop: 30,
+  },
+  logoImage: {
+    width: 120,
+    height: 40,
+    resizeMode: 'contain',
+    marginBottom: -30
   },
   subHeader: {
     fontSize: 14,
-    color: 'gray',
-    marginBottom: 10,
+    marginTop: 2,
+    fontFamily: 'Montserrat-Light',
   },
   imageContainer: {
     width: '100%',
-    height: 200, // Même hauteur que l’image
-    marginBottom: 20,
-    borderRadius: 10,
+    height: 175,
+    marginTop: 20,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholder: {
-    backgroundColor: '#E0E0E0', // Gris clair pour la zone vide
-    borderWidth: 2,
-    borderColor: '#A0A0A0', // Gris plus foncé pour la bordure
+    borderWidth: 1,
+    borderColor: '#FFD700',
   },
   image: {
     width: '100%',
@@ -265,10 +286,14 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#FFD700',
     padding: 10,
-    borderRadius: 5,
+    marginTop: 20, 
+    borderRadius: 10,
     marginBottom: 10,
+    fontFamily: 'Montserrat',
+    fontSize: 16,
+    
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -276,55 +301,101 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   toggleButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#f8f8f8',
+    flex: 1, 
+    alignItems: 'center',
+    justifyContent: 'center',
+    // paddingVertical: 10,  
+    marginHorizontal: 5,  
+    padding: 5,
+    borderRadius: 10,
+    backgroundColor: '#F4F5FF',
+    minWidth: 100,
+    height: 40,
   },
   selectedToggle: {
-    backgroundColor: '#FFD700',
+    color: '#FFD700',
   },
   toggleText: {
     fontWeight: 'bold',
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+    marginTop: 10,
   },
-  timeInput: {
+  personsRow :{
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 5,
+    borderColor: '#FFD700',
+    borderRadius: 10,
+    padding: 10,
+    width: 200,
+    fontFamily: 'Montserrat',
+  },
+  personsText: {
+    fontSize: 16,
+    fontFamily: 'Montserrat',
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    borderRadius: 10,
+  },
+
+  timeInput: {
     width: 50,
     textAlign: 'center',
+    padding: 12,
+  },
+  minInput: {
+    borderLeftWidth: 1,
+    borderColor: '#FFD700',
+    width: 50,
+    textAlign: 'center',
+    padding: 12,
   },
   section: {
     flexDirection: 'column',
-    alignItems: 'center',
+    // alignItems: 'center',
     marginBottom: 10,
     width: '100%',
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
+  },
+  inputIngredient: {
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    fontFamily: 'Montserrat',
   },
   addButton: {
-    backgroundColor: '#FFD700',
-    padding: 10,
-    borderRadius: 5,
+    padding: 5,
     marginLeft: 10,
   },
   addButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 30,
     color: '#000',
+    fontFamily: 'Montserrat',
   },
   listItem: {
-    backgroundColor: '#eee',
+    backgroundColor: '#F4F5FF',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     marginVertical: 5,
+    fontFamily: 'Montserrat',
   },
   sectionTitle: {
     fontSize: 18,
@@ -332,11 +403,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   scrollContainer: {
-    flex:1,
+    marginTop: 10,
   },
   photoButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
-  }
+  },
+  submitButton: {
+    backgroundColor: '#FFD700',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
+    fontFamily: 'Montserrat',
+  },
 });

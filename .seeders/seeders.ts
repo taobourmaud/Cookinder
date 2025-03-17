@@ -292,6 +292,8 @@ async function seeders() {
   
       if (error) {
         console.error(error)
+      } else {
+        console.log('Seeders applied')
       }
     }
   } catch (error) {

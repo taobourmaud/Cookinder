@@ -16,6 +16,8 @@ import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 import SignInScreen from './src/screens/tabs/auth/signIn.screen';
 import CameraFunction from './src/screens/takePicture.screen';
 import PhotoFormScreen from './src/screens/photoForm.screen';
+import DishesScreen from './src/screens/dishes.screen';
+import DishDetailScreen from './src/screens/dish.details.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -23,6 +25,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   TakePicture: undefined;
   PhotoForm: { imageUri: string };
+  DishDetailScreen: undefined
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -80,7 +83,7 @@ const TabNavigator: React.FC = () => {
         />
         <Tab.Screen
           name={SCREENS.RECIPE_LIKED}
-          component={LikeRecipeScreen}
+          component={DishesScreen}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -137,6 +140,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="HomeScreen" component={TabNavigator} />
           <Stack.Screen name="TakePicture" component={CameraFunction} /> 
           <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
+          <Stack.Screen name="DishDetailScreen" component={DishDetailScreen} />
         </>
       ) : (
         <>
@@ -150,8 +154,7 @@ const AppNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 100,
-    backgroundColor: "#fff",
+    height: 90,
     borderTopWidth: 0,
     elevation: 10,
     borderRadius: 20,
@@ -169,6 +172,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",    
     width: 50,
     height: 50,
+    backgroundColor: '#fff', 
   },
   focusedIconContainer: {
     marginTop: 35,
@@ -176,12 +180,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
-    backgroundColor: "#EBB502",
+    backgroundColor: "#FFD700",
     borderRadius: 10, 
   },
   icon: {
     width: 20,
     height: 20,
+    color: "#fff"
   },
 });
 
