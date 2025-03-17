@@ -4,13 +4,20 @@ import {FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import { getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
 import { AuthContext } from '../../authContext';
+import { DishesModel } from '../_utils/models/dishes';
+import { supabase } from '../../supabase';
+import { RouteProp } from '@react-navigation/native';
+import ApiHandler from '../_utils/api/apiHandler';
 
-export default function DishesScreen({ navigation }) {
+type DishesScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
+
+export default function DishesScreen({ route, navigation } : {route : DishesScreenRouteProp}) {
 
     const { userData } = useContext(AuthContext);
+    const { apiHandler } = route.params 
     const userId = userData.id;
     const userDisplayName = userData.userMetadata.displayName
-    const [dishes, setDishes] = useState([]);
+    const [dishes, setDishes] = useState<DishesModel[]>([]);
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
     const [refreshing, setRefreshing] = useState(false);
@@ -21,6 +28,7 @@ export default function DishesScreen({ navigation }) {
         try {
             setRefreshing(true);
             const data = await getLikedDishesByUser(userId);
+            
             setDishes(data);
 
             const dishLikesCount: { [key: string]: number } = {};
@@ -59,6 +67,7 @@ export default function DishesScreen({ navigation }) {
                 </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
                 <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
                 <FlatList
+                    style={styles.scrollContent}
                     data={[...dishes].reverse()}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => {
@@ -117,6 +126,8 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingBottom: 40,
+        paddingTop: 10,
+        paddingHorizontal: 10,
     },
     headerDisplayName: {
         fontSize: 24,

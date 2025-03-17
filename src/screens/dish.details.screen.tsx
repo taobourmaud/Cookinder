@@ -10,21 +10,20 @@ import {
     SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getLikedDishesByUser } from '../../services/dishesService';
+import { DishesModel } from '../_utils/models/dishes';
 
 export default function DishDetailScreen({ route, navigation }) {
-    const { dishId, dishSelected, userData, tagsForDish, dishesCreated } = route.params;
+    const { dishId, dishSelected, userData, tagsForDish } = route.params;
 
-    console.log(dishSelected)
     const userId = route.params.userData.id
-    const [dish, setDish] = useState(null);
+    const [dish, setDish] = useState<DishesModel>();
     const [loading, setLoading] = useState(true);
 
     const fetchDishDetails = async () => {
         setLoading(true);
         try {
-            setDish(dishSelected)
-            console.log(dish)
+            const dish = dishSelected.dishes
+            setDish(dish);
         } catch (error) {
             console.error('Erreur lors de la récupération des détails du plat:', error);
         } finally {
@@ -67,7 +66,18 @@ export default function DishDetailScreen({ route, navigation }) {
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <Image source={{ uri: dish.image_url }} style={styles.image} />
                 <Text style={styles.title}>{dish.title}</Text>
-                <Text style={styles.difficulty}>{dish.difficulty}</Text>
+                <Text style={styles.difficulty}>
+                    {typeof dish.difficulty === 'object' 
+                        ? dish.difficulty?.title 
+                        : dish.difficulty === 1 
+                        ? 'Facile' 
+                        : dish.difficulty === 2 
+                            ? 'Moyen' 
+                            : dish.difficulty === 3 
+                            ? 'Difficile' 
+                            : ''}
+                </Text>
+                {/* 
                 {tagsForDish && tagsForDish.length > 0 ? (
                     <View style={styles.tagsContainer}>
                         {tagsForDish.map((tag, index) => (
@@ -78,7 +88,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     </View>
                 ) : (
                     <Text ></Text>
-                )}
+                )} */}
                 <View style={styles.infoContainer}>
                     <View style={styles.infoItem}>
                         <Ionicons name="people" size={20} color="black" />
@@ -169,7 +179,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         paddingVertical: 5,
         borderRadius: 10,
-        color: '#ff8c00',
+        color: '#EBB502',
         fontWeight: 'bold',
     },
     tagsContainer: {

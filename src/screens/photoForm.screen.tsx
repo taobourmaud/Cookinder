@@ -78,11 +78,9 @@ export default function PhotoFormScreen() {
     const userId = user.user.id;
     const userName = user.user.user_metadata.displayName;
 
-
-    // Upload de l'image sur Supabase Storage
     const fileName = `dishes_images/${Date.now()}.jpg`;
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('dishes_images') // Nom du bucket Supabase
+      .from('dishes_images')
       .upload(fileName, {
         uri: imageUri,
         type: 'image/jpeg',
@@ -155,7 +153,7 @@ export default function PhotoFormScreen() {
             style={styles.toggleButton}
             onPress={() => handleDifficultyChange(level)}
           >
-            <Text style={[styles.toggleText, difficulty === level && styles.selectedToggle, difficulty === level && { color: '#FFD700' }]}>{level}</Text>
+            <Text style={[styles.toggleText, difficulty === level && styles.selectedToggle, difficulty === level && { color: '#EBB502' }]}>{level}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -273,7 +271,7 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
   },
   image: {
     width: '100%',
@@ -286,7 +284,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
     padding: 10,
     marginTop: 20, 
     borderRadius: 10,
@@ -313,7 +311,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   selectedToggle: {
-    color: '#FFD700',
+    color: '#EBB502',
   },
   toggleText: {
     fontWeight: 'bold',
@@ -329,7 +327,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
     borderRadius: 10,
     padding: 10,
     width: 200,
@@ -344,7 +342,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
     borderRadius: 10,
   },
 
@@ -355,7 +353,7 @@ const styles = StyleSheet.create({
   },
   minInput: {
     borderLeftWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
     width: 50,
     textAlign: 'center',
     padding: 12,
@@ -375,7 +373,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderWidth: 1,
-    borderColor: '#FFD700',
+    borderColor: '#EBB502',
     borderRadius: 10,
     paddingHorizontal: 15,
     fontSize: 16,
@@ -411,7 +409,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   submitButton: {
-    backgroundColor: '#FFD700',
+    backgroundColor: '#EBB502',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',

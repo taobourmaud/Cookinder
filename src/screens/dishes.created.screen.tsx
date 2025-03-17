@@ -7,7 +7,6 @@ import {View, Text, StyleSheet, Image, TouchableOpacity} from "react-native";
 import { getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
 import {Ionicons} from "@expo/vector-icons";
 
-// Define the types for likesCount and tagsCount
 interface LikesCount {
   [key: string]: number;
 }
@@ -34,11 +33,18 @@ export default function DishesCreatedScreen({ navigation }) {
 
         try {
             if (data) {
-                setDishes(data);
+                const normalizedData = data.map(dish => ({
+                    id: dish.id, 
+                    dishes: dish, 
+                }));
+                
+                setDishes(normalizedData);
+                
                 const dishTagsCount: TagsCount = {};
                 const dishLikesCount: LikesCount = {};
-
-                for (let dish of data) {
+    
+                for (let item of normalizedData) {
+                    const dish = item.dishes;
                     if (dish && dish.id) { 
                         dishLikesCount[dish.id] = await getNumberOfLikesDish(dish.id);
                         dishTagsCount[dish.id] = await getTagsOfDish(dish.id);
@@ -47,7 +53,7 @@ export default function DishesCreatedScreen({ navigation }) {
                         console.warn('Dish or dish.id is undefined:', dish);
                     }
                 }
-
+    
                 setLikesCount(dishLikesCount);
                 setTagsCount(dishTagsCount);
             }

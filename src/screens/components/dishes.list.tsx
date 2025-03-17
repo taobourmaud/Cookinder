@@ -41,10 +41,10 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, userD
                         <View style={styles.card}>
                             <Image source={{ uri: item.image_url }} style={styles.image} />
                              <View style={styles.info}>
-                                <Text style={styles.title}>{item.title}</Text>
+                                <Text style={styles.title}>{item.dishes.title}</Text>
                                 <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
                                 <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.difficulty}</Text>
-                                <Text style={styles.info}>Créé par : {userDishCreated}</Text>
+                                <Text style={styles.info}>Créé par vous</Text>
                             </View>
                         </View>
                     </TouchableOpacity>

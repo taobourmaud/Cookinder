@@ -15,7 +15,7 @@ import SignUpScreen from './src/screens/tabs/auth/signUp.screen';
 import SignInScreen from './src/screens/tabs/auth/signIn.screen';
 import CameraFunction from './src/screens/takePicture.screen';
 import PhotoFormScreen from './src/screens/photoForm.screen';
-import DishesScreen from './src/screens/dishes.screen';
+import DishesScreen from './src/screens/dishes.liked.screen';
 import DishDetailScreen from './src/screens/dish.details.screen';
 import DishesCreatedScreen from './src/screens/dishes.created.screen';
 
@@ -87,6 +87,7 @@ const TabNavigator: React.FC = () => {
         <Tab.Screen
           name={SCREENS.RECIPE_LIKED}
           component={DishesScreen}
+          initialParams={{ apiHandler }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
-    backgroundColor: "#FFD700",
+    backgroundColor: "#EBB502",
     borderRadius: 10, 
   },
   icon: {

@@ -9,6 +9,6 @@ export class DishesModel {
     number_persons?: number
     ingredients?: string[]
     instructions?: string[]
-    difficulty?: number
+    difficulty?: string
     username?: string
 }
