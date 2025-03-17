@@ -76,6 +76,8 @@ export default function PhotoFormScreen() {
     }
 
     const userId = user.user.id;
+    const userName = user.user.user_metadata.displayName;
+
 
     // Upload de l'image sur Supabase Storage
     const fileName = `dishes_images/${Date.now()}.jpg`;
@@ -107,6 +109,7 @@ export default function PhotoFormScreen() {
         difficulty: level,
         image_url: imageUrl,
         user_id: userId,
+        username: userName,
       },
     ]);
 
@@ -232,6 +235,10 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     paddingTop: 40
+  },
+  logo: {
+    resizeMode: 'contain',
+    textAlign: 'right',
   },
   header: {
     width: '100%',
