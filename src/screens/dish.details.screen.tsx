@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    ScrollView,
+    TouchableOpacity,
+    ActivityIndicator,
+    SafeAreaView
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../../App';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
 import { getLikedDishesByUser } from '../../services/dishesService';
-
-type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
-type PhotoFormRouteProp = RouteProp<RootStackParamList, 'DishDetailScreen'>;
 
 export default function DishDetailScreen({ route, navigation }) {
     const { tagsForDish } = route.params;
@@ -15,17 +18,17 @@ export default function DishDetailScreen({ route, navigation }) {
     const userId = route.params.userData.id
     const [dish, setDish] = useState(null);
 
-    useEffect(() => {
-        const fetchDishDetails = async () => {
-            try {
-                const dishes = await getLikedDishesByUser(userId);
-                const selectedDish = dishes.find(item => item.dishes.id === dishId);
-                setDish(selectedDish ? selectedDish.dishes : null);
-            } catch (error) {
-                console.error('Erreur lors de la récupération des détails du plat:', error);
-            }
-        };
+    const fetchDishDetails = async () => {
+        try {
+            const dishes = await getLikedDishesByUser(userId);
+            const selectedDish = dishes.find(item => item.dishes.id === dishId);
+            setDish(selectedDish ? selectedDish.dishes : null);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des détails du plat:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchDishDetails();
     }, [dishId]);
 
@@ -39,7 +42,7 @@ export default function DishDetailScreen({ route, navigation }) {
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="black" />
@@ -92,7 +95,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     <Text></Text>
                 )}
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
