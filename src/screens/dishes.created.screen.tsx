@@ -21,7 +21,6 @@ export default function DishesCreatedScreen({ navigation }) {
     const [dishes, setDishes] = useState<DishesModel[]>([]);
     const [likesCount, setLikesCount] = useState<LikesCount>({});
     const [tagsCount, setTagsCount] = useState<TagsCount>({});
-    const [userDishCreated, setUserDishCreated] = useState("");
 
     async function getDishesCreated() {
         const { data, error } = await supabase.from('dishes').select('*').eq('user_id', userId);
@@ -48,7 +47,6 @@ export default function DishesCreatedScreen({ navigation }) {
                     if (dish && dish.id) { 
                         dishLikesCount[dish.id] = await getNumberOfLikesDish(dish.id);
                         dishTagsCount[dish.id] = await getTagsOfDish(dish.id);
-                        setUserDishCreated(dish.username);
                     } else {
                         console.warn('Dish or dish.id is undefined:', dish);
                     }
@@ -86,7 +84,7 @@ export default function DishesCreatedScreen({ navigation }) {
                 userData={userData}
                 likesCount={likesCount}
                 tagsCount={tagsCount}
-                userDishCreated={userDishCreated}
+                isLikedList={false}
             />
         </View>
     );
