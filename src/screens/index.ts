@@ -1,0 +1,11 @@
+const SCREENS = {
+    HOME : "HOME", 
+    SIGNIN: "SIGNIN",
+    SIGNUP: "SIGNUP",
+    PROFILE: "PROFILE",
+    CREATE_RECIPE: "CREATE_RECIPE",
+    RECIPE_DETAIL: "RECIPE_DETAIL",
+    RECIPE_LIKED: "DishesScreen",
+}
+
+export default SCREENS;
