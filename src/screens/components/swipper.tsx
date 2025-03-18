@@ -37,7 +37,7 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
                       title: '👎🏻',
                       style: {
                         label: {
-                          backgroundColor: '#ec200f',
+                          backgroundColor: 'rgba(236, 32, 15, 0.6)',
                           color: 'white',
                           fontSize: 24,
                         },
@@ -54,7 +54,7 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
                       title: '🤍',
                       style: {
                         label: {
-                          backgroundColor: '#07d90a',
+                          backgroundColor: 'rgba(7, 217, 10, 0.6)',
                           color: 'white',
                           fontSize: 24,
                         },

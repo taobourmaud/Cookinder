@@ -86,7 +86,7 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
     const user = await apiHandler.getUser()
     const fileName = `dishes_images/${Date.now()}.jpg`;
 
-    const image = await apiHandler.uploadImage(fileName, imageUri)
+    await apiHandler.uploadImage(fileName, imageUri)
 
     const imageUrl = `${supabase.storage.from('dishes_images').getPublicUrl(fileName).data.publicUrl}`;
     const userName = user.app_metadata.provider
