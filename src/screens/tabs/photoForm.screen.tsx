@@ -1,35 +1,53 @@
-import { useState } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useState } from 'react';
+import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Button } from 'react-native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../../App';
 import { supabase } from '../../../supabase';
+import { DishesModel } from '../../_utils/models/dishes';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { TagsModel } from '../../_utils/models/tags';
+import { Picker } from '@react-native-picker/picker';
+import { DishesTagModel } from '../../_utils/models/dishes_tag';
+
 
 type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoForm'>;
 type PhotoFormRouteProp = RouteProp<RootStackParamList, 'PhotoForm'>;
 
-export default function PhotoFormScreen() {
+export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp}) {
   const navigation = useNavigation<PhotoFormNavigationProp>();
   const route = useRoute<PhotoFormRouteProp>();
-  const [imageUri, setImageUri] = useState(route.params?.imageUri || null);
+  const imageUri = route.params?.imageUri;
+  const { apiHandler }  = route.params
 
-  const [title, setTitle] = useState('');
-  const [difficulty, setDifficulty] = useState('Intermédiaire');
-  const [level, setLevel] = useState(1);
-  const [servings, setServings] = useState(4);
-  const [time, setTime] = useState(30);
+  const [title, setTitle] = useState<string>('');
+  const [difficulty, setDifficulty] = useState<string>('Intermédiaire');
+  const [level, setLevel] = useState<number>(1);
+  const [servings, setServings] = useState<number>(4);
+  const [time, setTime] = useState<number>(30);
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
-  const [newIngredient, setNewIngredient] = useState('');
-  const [newInstruction, setNewInstruction] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [description, setDescription] = useState('');
+  const [newIngredient, setNewIngredient] = useState<string>('');
+  const [newInstruction, setNewInstruction] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  // Tags option dropdown
+  const [tagsOption, setTagsOption] = useState<TagsModel[]>([])
+  // Tag selected by user
+  const [selectedTag, setSelectedTag] = useState<number>(1);
 
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTags = async () => {
+        const initTags = await apiHandler.getData({ targetTable: 'tags' }) as TagsModel[];
+        setTagsOption(initTags);
+      };
+      fetchTags();
+    }, [])
+  )
 
   function goToTakePicture() {
-    navigation.navigate('TakePicture'); 
+    navigation.navigate('TakePicture', { apiHandler: apiHandler }); 
   }
 
 
@@ -65,165 +83,150 @@ export default function PhotoFormScreen() {
   };
 
   async function handleSubmit() {
-    setLoading(true);
-
-    // Récupérer l'utilisateur connecté
-    const { data: user, error: userError } = await supabase.auth.getUser();
-    if (userError || !user.user) {
-      Alert.alert('Erreur', 'Utilisateur non connecté');
-      setLoading(false);
-      return;
-    }
-
-    const userId = user.user.id;
-    const userName = user.user.user_metadata.displayName;
-
+    const user = await apiHandler.getUser()
     const fileName = `dishes_images/${Date.now()}.jpg`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('dishes_images')
-      .upload(fileName, {
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: fileName,
-      });
 
-    if (uploadError) {
-      Alert.alert('Erreur', 'Échec de l’upload de l’image');
-      setLoading(false);
-      return;
-    }
+    await apiHandler.uploadImage(fileName, imageUri)
 
     const imageUrl = `${supabase.storage.from('dishes_images').getPublicUrl(fileName).data.publicUrl}`;
-
-    // Insérer les données dans la table 'dishes'
-    const { error: insertError } = await supabase.from('dishes').insert([
-      {
-        title,
-        description,
-        ingredients,
-        instructions,
-        cooking_time: time,
-        number_persons: servings,
-        difficulty: level,
-        image_url: imageUrl,
-        user_id: userId,
-        username: userName,
-      },
-    ]);
-
-    if (insertError) {
-      console.log(insertError);
-      Alert.alert('Erreur', 'Échec de l’enregistrement du plat');
-    } else {
-      Alert.alert('Succès', 'Plat enregistré avec succès !');
-      navigation.navigate('HomeScreen');
-    }
-
-    setLoading(false);
+    const userName = user.app_metadata.provider
+    const newDishesData = new DishesModel(
+      title, description, imageUrl, time, servings, ingredients, instructions, level, userName
+    )
+    const newDish = await apiHandler.postData('dishes', newDishesData)
+    // Rely dish to tag
+    const newdishesTag = new DishesTagModel(newDish[0].id, selectedTag)
+    await apiHandler.postData('dishes_tags', newdishesTag)
+    navigation.navigate("HomeScreen", { apiHandler: apiHandler });
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image
-            source={require('../../../assets/COOKINDER.png')}
-            style={styles.logoImage}
-        />
-      </View>
-      <Text style={styles.textHeader}>Créer un plat ici !</Text>
-      <Text style={styles.subHeader}>Créer un plat pour le partager aux utilisateurs !</Text>
-      <TouchableOpacity style={[styles.imageContainer, !imageUri && styles.placeholder]} onPress={goToTakePicture}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.image} />
-        ) : (
-          <Text style={styles.placeholderText}>📷 Prendre une photo</Text>
-        )}
-      </TouchableOpacity>
-      <TextInput
-        style={styles.input}
-        placeholder="Titre du plat"
-        placeholderTextColor={'#000000'}
-        value={title}
-        onChangeText={setTitle}
-      />
-      <View style={styles.toggleContainer}>
-        {['Facile', 'Intermédiaire', 'Difficile'].map(level => (
-          <TouchableOpacity
-            key={level}
-            style={styles.toggleButton}
-            onPress={() => handleDifficultyChange(level)}
-          >
-            <Text style={[styles.toggleText, difficulty === level && styles.selectedToggle, difficulty === level && { color: '#EBB502' }]}>{level}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.row}>
-        <View style={styles.personsRow}>
-          <TouchableOpacity
-            onPress={() => setServings(servings - 1)}>
-            <Text style={{'fontSize': 20}} >-</Text>
-          </TouchableOpacity>
-          <Text style={styles.personsText}>{servings} personnes</Text>
-          <TouchableOpacity onPress={() => setServings(servings + 1)}>
-          <Text style={{'fontSize': 20}}>+</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.timeRow}>
-          <TextInput
-            style={styles.timeInput}
-            keyboardType="numeric"
-            value={String(time)}
-            onChangeText={(val) => setTime(Number(val))}
-          />
-          <Text style={styles.minInput}>min</Text>
-        </View>
-      </View>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.section}>
-          <View style={styles.inputRow}>
-            <TextInput
-              style={styles.inputIngredient}
-              placeholder="Ajouter un ingrédient"
-              value={newIngredient}
-              onChangeText={setNewIngredient}
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
-              <Text style={styles.addButtonText}>+</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Image
+                  source={require('../../../assets/COOKINDER.png')}
+                  style={styles.logoImage}
+              />
+            </View>
+            <Text style={styles.textHeader}>Créer un plat ici !</Text>
+            <Text style={styles.subHeader}>Créer un plat pour le partager aux utilisateurs !</Text>
+            <TouchableOpacity style={[styles.imageContainer, !imageUri && styles.placeholder]} onPress={goToTakePicture}>
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.image} />
+              ) : (
+                <Text style={styles.placeholderText}>📷 Prendre une photo</Text>
+              )}
             </TouchableOpacity>
-          </View>
-          <FlatList
-            data={ingredients}
-            renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
-            keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
-    
-        <View style={styles.section}>
-          <View style={styles.inputRow}>
             <TextInput
-              style={styles.inputIngredient}
-              placeholder="Ajouter une instruction"
-              value={newInstruction}
-              onChangeText={setNewInstruction}
+              style={styles.input}
+              placeholder="Titre du plat"
+              placeholderTextColor={'#000000'}
+              value={title}
+              onChangeText={setTitle}
             />
-            <TouchableOpacity style={styles.addButton} onPress={addInstruction}>
-              <Text style={styles.addButtonText}>+</Text>
-            </TouchableOpacity>
+            <Picker
+              selectedValue={selectedTag}
+              onValueChange={(newTags) => setSelectedTag(newTags)}
+              style={styles.input}
+            >
+              {tagsOption.map((item) => (
+                <Picker.Item key={item.id} label={item.title} value={item.id} />
+              ))}
+            </Picker>
+            <View style={styles.toggleContainer}>
+              {['Facile', 'Intermédiaire', 'Difficile'].map(level => (
+                <TouchableOpacity
+                  key={level}
+                  style={styles.toggleButton}
+                  onPress={() => handleDifficultyChange(level)}
+                >
+                  <Text style={[styles.toggleText, difficulty === level && styles.selectedToggle, difficulty === level && { color: '#FFD700' }]}>{level}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.row}>
+              <View style={styles.personsRow}>
+                <TouchableOpacity
+                  onPress={() => setServings(Math.max(1, servings - 1))}>
+                  <Text style={{'fontSize': 20}} >-</Text>
+                </TouchableOpacity>
+                <Text style={styles.personsText}>{servings} personnes</Text>
+                <TouchableOpacity onPress={() => setServings(servings + 1)}>
+                <Text style={{'fontSize': 20}}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.timeRow}>
+                <TextInput
+                  style={styles.timeInput}
+                  keyboardType="numeric"
+                  value={String(time)}
+                  onChangeText={(val) => setTime(Number(val) || 0)}
+                />
+                <Text style={styles.minInput}>min</Text>
+              </View>
+            </View>
+            <View style={styles.section}>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.inputIngredient}
+                  placeholder="Ajouter un ingrédient"
+                  value={newIngredient}
+                  onChangeText={setNewIngredient}
+                />
+                <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
+                  <Text style={styles.addButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={ingredients}
+                renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
+                keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
+              />
+            </View>
+            <View style={styles.section}>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.inputIngredient}
+                  placeholder="Ajouter une instruction"
+                  value={newInstruction}
+                  onChangeText={setNewInstruction}
+                />
+                <TouchableOpacity style={styles.addButton} onPress={addInstruction}>
+                  <Text style={styles.addButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={instructions}
+                renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
+                keyExtractor={(item, index) => index.toString()}
+                scrollEnabled={false}
+              />
+            </View>
+            <View>
+              <TextInput 
+              style={styles.input}
+              placeholder='Description'
+              value={description}
+              onChangeText={setDescription}
+              multiline={true}
+              />
+            </View>
+            <Button title='Ajouter ce plat !' accessibilityLabel="Ajouter ce plat !" onPress={handleSubmit} color="#FFD700"/>
           </View>
-          <FlatList
-            data={instructions}
-            renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
-            keyExtractor={(item, index) => index.toString()}
-            scrollEnabled={false}
-          />
-        </View>
-         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Ajouter ce plat !</Text>
-        </TouchableOpacity>
-      </ScrollView>
-      
-    </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -232,7 +235,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    paddingTop: 40
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   logo: {
     resizeMode: 'contain',
@@ -244,6 +253,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', 
     alignItems: 'flex-end', 
     paddingHorizontal: 20,
+    paddingTop: 10,
   },
   textHeader: {
     fontSize: 20,
@@ -271,7 +281,7 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     borderWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
   },
   image: {
     width: '100%',
@@ -284,7 +294,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
     padding: 10,
     marginTop: 20, 
     borderRadius: 10,
@@ -302,7 +312,6 @@ const styles = StyleSheet.create({
     flex: 1, 
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingVertical: 10,  
     marginHorizontal: 5,  
     padding: 5,
     borderRadius: 10,
@@ -311,7 +320,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   selectedToggle: {
-    color: '#EBB502',
+    color: '#FFD700',
   },
   toggleText: {
     fontWeight: 'bold',
@@ -327,7 +336,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
     borderRadius: 10,
     padding: 10,
     width: 200,
@@ -342,7 +351,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
     borderRadius: 10,
   },
 
@@ -353,14 +362,13 @@ const styles = StyleSheet.create({
   },
   minInput: {
     borderLeftWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
     width: 50,
     textAlign: 'center',
     padding: 12,
   },
   section: {
     flexDirection: 'column',
-    // alignItems: 'center',
     marginBottom: 10,
     width: '100%',
   },
@@ -373,7 +381,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     borderWidth: 1,
-    borderColor: '#EBB502',
+    borderColor: '#FFD700',
     borderRadius: 10,
     paddingHorizontal: 15,
     fontSize: 16,
@@ -408,18 +416,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
   },
-  submitButton: {
-    backgroundColor: '#EBB502',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center',
+  picker: {
+    width: 200,
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
     marginBottom: 20,
-    marginTop: 20,
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 15,
-    fontWeight: 'bold',
-    fontFamily: 'Montserrat',
   },
 });

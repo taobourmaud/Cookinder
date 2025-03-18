@@ -2,9 +2,8 @@ import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-n
 import { DishesModel } from '../../_utils/models/dishes';
 import Icon from "react-native-vector-icons/FontAwesome";
 import React, {useEffect, useState} from "react";
-import ConfirmDeleteModal from "../../_utils/components/confirmDeleteModal";
-import {deleteDishByUser} from "../../../services/dishesService";
-
+import ConfirmDeleteModal from "../components/confirmDeleteModal";
+import ApiHandler from '../../_utils/api/apiHandler';
 
 interface UserDishesListInterface {
     navigation: any;
@@ -16,7 +15,8 @@ interface UserDishesListInterface {
     tagsCount: {
         [key: string]: string[];
     };
-    isLikedList?: boolean;
+    isLikedList: boolean
+
 }
 
 const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLikedList}: UserDishesListInterface) => {
@@ -24,6 +24,7 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLik
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [dishesList, setDishesList] = useState<DishesModel[]>([]);
+    const apiHandler = new ApiHandler()
 
     useEffect(() => {
         setDishesList(dishes);
@@ -77,9 +78,9 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLik
                               if (selectedDishId) {
                                 try {
                                   if (!isLikedList) {
-                                    await deleteDishByUser("dishes", selectedDishId, userData.id);
+                                    await apiHandler.deleteDishByUser("dishes", selectedDishId, userData.id);
                                   } else {
-                                    await deleteDishByUser("likes", selectedDishId, userData.id);
+                                    await apiHandler.deleteDishByUser("likes", selectedDishId, userData.id);
                                   }
                                   setDishesList(prevDishesList => prevDishesList.filter(dish => dish.dishes.id !== selectedDishId));
                                 } catch (error) {

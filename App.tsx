@@ -17,15 +17,14 @@ import CameraFunction from './src/screens/tabs/takePicture.screen';
 import PhotoFormScreen from './src/screens/tabs/photoForm.screen';
 import DishDetailScreen from './src/screens/tabs/dish.details.screen';
 import DishesCreatedScreen from './src/screens/tabs/dishes.created.screen';
-import DishesScreen from './src/screens/tabs/dishes.liked.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
   SignIn: undefined;
   SignUp: undefined;
   TakePicture: undefined;
-  PhotoForm: { imageUri: string };
-  DishDetailScreen: undefined;
+  PhotoForm: { imageUri: string, apiHandler: ApiHandler };
+  DishDetailScreen: undefined
   ProfileScreen: undefined;
   DishesScreen: undefined;
   DishesCreatedScreen: undefined;
@@ -69,6 +68,7 @@ const TabNavigator: React.FC = () => {
         <Tab.Screen
           name={SCREENS.CREATE_RECIPE}
           component={PhotoFormScreen}
+          initialParams={{ apiHandler }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -106,6 +106,7 @@ const TabNavigator: React.FC = () => {
         <Tab.Screen
           name={SCREENS.PROFILE}
           component={ProfileScreen}
+          initialParams={{ apiHandler }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
-    backgroundColor: "#EBB502",
+    backgroundColor: "#FFD700",
     borderRadius: 10, 
   },
   icon: {

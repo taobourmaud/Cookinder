@@ -7,11 +7,16 @@ import UserInfos from '../components/userInfos';
 import Button from '../components/inputs/button';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../App';
+import { RouteProp } from '@react-navigation/native';
+import ApiHandler from '../../_utils/api/apiHandler';
 
 type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'ProfileScreen'>;
+type ProfileScreenRouteProp = RouteProp<{ ProfileScreen: { apiHandler: ApiHandler } }, 'ProfileScreen'>;
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ route, navigation } : {route : ProfileScreenRouteProp}) => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const { apiHandler } = route.params
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -25,18 +30,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const { signOut } = auth;
 
   async function getUser() {
-    const { data, error } = await supabase.auth.getUser();
+    const user = await apiHandler.getUser()
 
-    if (error) {
-      console.error('Error fetching user:', error.message);
-      return;
-    }
-
-    if (data.user) {
-      setUser(data.user);
-      setEmail(data.user.email || '');
-      setDisplayName(data.user.user_metadata?.displayName || '');
-      setPhone(data.user.user_metadata.phone || '');
+    if (user) {
+      setUser(user);
+      setEmail(user.email || '');
+      setDisplayName(user.user_metadata?.displayName || '');
+      setPhone(user.user_metadata.phone || '');
     }
   }
 
@@ -158,7 +158,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           />
           
           <TouchableOpacity
-            onPress={() => { navigation.navigate('DishesCreatedScreen'); }}
+            onPress={() => { navigation.navigate('DishesCreatedScreen', { apiHandler: apiHandler }); }}
           >
             <Text style={styles.recipeText}>Recettes créées</Text>
           </TouchableOpacity>

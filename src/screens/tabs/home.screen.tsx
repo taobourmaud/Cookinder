@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
 import { StyleSheet, Image, Text, View, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { DishesModel } from '../../_utils/models/dishes';
-import { MySwipper } from '../../_utils/components/swipper';
+import { MySwipper } from '../components/swipper';
 import { TagsModel } from '../../_utils/models/tags';
 import { DishesTagModel } from '../../_utils/models/dishes_tag';
 import { RequestFilter } from '../../_utils/models/requestFilter';

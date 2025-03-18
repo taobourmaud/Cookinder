@@ -1,41 +1,33 @@
-import React, {useEffect, useState} from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    ScrollView,
-    TouchableOpacity,
-    ActivityIndicator,
-    SafeAreaView
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { RootStackParamList } from '../../../App';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import difficulty from '../../_utils/interface/difficultyLevel';
 import { DishesModel } from '../../_utils/models/dishes';
 
-export default function DishDetailScreen({ route, navigation }) {
-    const { dishId, dishSelected, userData, tagsForDish } = route.params;
+type DishDetailNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
+type DishDetailScreenRouteProp = RouteProp<{ DishDetailScreen: { userData: object, tagsForDish: object[], dishSelected: object } }, 'DishDetailScreen'>;
 
-    const userId = route.params.userData.id
-    const [dish, setDish] = useState<DishesModel>();
-    const [loading, setLoading] = useState(true);
-
-    const fetchDishDetails = async () => {
-        setLoading(true);
-        try {
-            const dish = dishSelected.dishes
-            setDish(dish);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des détails du plat:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+export default function DishDetailScreen({ route, navigation }: { route: DishDetailScreenRouteProp, navigation: DishDetailNavigationProp }) {
+    const { tagsForDish, dishSelected } = route.params;
+    const [dish, setDish] = useState<DishesModel | null>(null);
 
     useEffect(() => {
-        fetchDishDetails();
-    }, [dishId]);
+        const fetchDishDetails = async () => {
+            try {
+                const selectedDish = dishSelected.dishes
+                setDish(selectedDish);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des détails du plat:', error);
+            }
+        };
 
-    if (loading) {
+        fetchDishDetails();
+    }, []);
+
+    if (!dish) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#ff8c00" />
@@ -44,16 +36,8 @@ export default function DishDetailScreen({ route, navigation }) {
         );
     }
 
-    if (!dish) {
-        return (
-            <SafeAreaView style={styles.container}>
-                <Text style={styles.errorText}>Recette non trouvée.</Text>
-            </SafeAreaView>
-        );
-    }
-
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="black" />
@@ -66,18 +50,7 @@ export default function DishDetailScreen({ route, navigation }) {
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <Image source={{ uri: dish.image_url }} style={styles.image} />
                 <Text style={styles.title}>{dish.title}</Text>
-                <Text style={styles.difficulty}>
-                    {typeof dish.difficulty === 'object' 
-                        ? dish.difficulty?.title 
-                        : dish.difficulty === 1 
-                        ? 'Facile' 
-                        : dish.difficulty === 2 
-                            ? 'Moyen' 
-                            : dish.difficulty === 3 
-                            ? 'Difficile' 
-                            : ''}
-                </Text>
-                {/* 
+                <Text style={styles.difficulty}>{difficulty[dish.difficulty] || dish.difficulty?.title}</Text>
                 {tagsForDish && tagsForDish.length > 0 ? (
                     <View style={styles.tagsContainer}>
                         {tagsForDish.map((tag, index) => (
@@ -88,7 +61,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     </View>
                 ) : (
                     <Text ></Text>
-                )} */}
+                )}
                 <View style={styles.infoContainer}>
                     <View style={styles.infoItem}>
                         <Ionicons name="people" size={20} color="black" />
@@ -117,7 +90,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     <Text></Text>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -131,12 +104,6 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 18,
         fontStyle: 'italic',
-    },
-    errorText: {
-        fontSize: 18,
-        color: 'red',
-        textAlign: 'center',
-        marginTop: 20,
     },
     container: {
         flex: 1,
@@ -179,7 +146,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 25,
         paddingVertical: 5,
         borderRadius: 10,
-        color: '#EBB502',
+        color: '#ff8c00',
         fontWeight: 'bold',
     },
     tagsContainer: {
