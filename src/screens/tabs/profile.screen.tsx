@@ -16,6 +16,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [likes, setLikes] = useState<number | null>(null);
 
   const auth = useContext(AuthContext);
 
@@ -39,9 +40,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     }
   }
 
-  useEffect(() => {
-    getUser()
-  }, [])
+  
 
   async function updateUser() {
     if (!user) return;
@@ -57,6 +56,38 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       setIsEditing(false);
     }
   }
+
+  async function getNumberOfLikes() {
+    const { data: dishes, error: dishesError } = await supabase
+      .from('dishes')
+      .select('id')
+      .eq('user_id', user?.id);
+
+      if (dishesError) {
+        console.error('Erreur lors de la récupération des plats:', dishesError.message);
+      } else if (dishes.length === 0) {
+        console.log("L'utilisateur n'a créé aucun plat.");
+      } else {
+      const dishIds = dishes.map(dish => dish.id); 
+
+      const { count, error: likesError } = await supabase
+        .from('likes')
+        .select('id', { count: 'exact', head: true })
+        .in('dish_id', dishIds);
+
+      if (likesError) {
+        console.error('Erreur lors de la récupération des likes:', likesError.message);
+      }
+      setLikes(count);
+    }
+  }
+
+  useEffect(() => {
+    getUser();
+    if (user?.id) {
+      getNumberOfLikes();
+    }
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -116,7 +147,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             style={styles.recipeImage}
             source={require("../../../assets/images/like.png")}
           />
-            <Text style={styles.recipeText}>Like reçus : 20</Text>
+            <Text style={styles.recipeText}>Like reçus : {likes ?? 0}</Text>
         </View>
       </View>
       <View style={styles.recipeCreated}>
