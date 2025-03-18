@@ -31,6 +31,7 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLik
 
     return (
         <FlatList
+            style={styles.flatListContainer}
             data={dishesList}
             keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
             renderItem={({ item }) => {
@@ -101,13 +102,16 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLik
 };
 
 const styles = StyleSheet.create({
+    flatListContainer : {
+        padding: 10,
+    },
     cardContainer: {
         flexDirection: 'row',
         backgroundColor: '#f0f0ff',
         marginBottom: 10,
         borderRadius: 15,
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between',        
     },
     card: {
         flexDirection: 'row',
@@ -131,13 +135,12 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         backgroundColor: '#E57373',
-        padding: 10,
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
         width: 40,
         height: 40,
-        marginRight: 10
+        marginRight: 20
     },
 });
 

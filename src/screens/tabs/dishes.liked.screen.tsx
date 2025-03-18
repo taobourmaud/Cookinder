@@ -5,11 +5,11 @@ import {
     getLikedDishesByUser,
     getNumberOfLikesDish,
     getTagsOfDish
-} from '../../services/dishesService';
-import { AuthContext } from '../../authContext';
-import { DishesModel } from '../_utils/models/dishes';
-import ApiHandler from '../_utils/api/apiHandler';
-import DishesList from "./components/dishes.list";
+} from '../../../services/dishesService';
+import { AuthContext } from '../../../authContext';
+import { DishesModel } from '../../_utils/models/dishes';
+import ApiHandler from '../../_utils/api/apiHandler';
+import DishesList from "../components/dishes.list";
 
 type DishesScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
 
@@ -52,23 +52,23 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
     );
 
     return (
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
-                    <Image
-                        source={require('../../assets/COOKINDER.png')}
-                        style={styles.logoImage}
-                    />
-                </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
-                <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
-                <DishesList
-                    navigation={navigation}
-                    dishes={dishes}
-                    userData={userData}
-                    likesCount={likesCount}
-                    tagsCount={tagsCount}
-                    isLikedList={true}
+        <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+                <Image
+                    source={require('../../../assets/COOKINDER.png')}
+                    style={styles.logoImage}
                 />
-            </SafeAreaView>
+            </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
+            <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
+            <DishesList
+                navigation={navigation}
+                dishes={dishes}
+                userData={userData}
+                likesCount={likesCount}
+                tagsCount={tagsCount}
+                isLikedList={true}
+            />
+        </SafeAreaView>
     );
 }
 
@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f9f9fc',
-        padding: 20,
     },
     header: {
         flexDirection: 'row',

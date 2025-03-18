@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import DishesList from "./components/dishes.list";
-import { supabase } from "../../supabase";
-import { AuthContext } from "../../authContext";
-import { DishesModel } from "../_utils/models/dishes";
+import DishesList from "../components/dishes.list";
+import { supabase } from "../../../supabase";
+import { AuthContext } from "../../../authContext";
+import { DishesModel } from "../../_utils/models/dishes";
 import {View, Text, StyleSheet, Image, TouchableOpacity} from "react-native";
-import { getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
+import { getNumberOfLikesDish, getTagsOfDish } from '../../../services/dishesService';
 import {Ionicons} from "@expo/vector-icons";
 
 interface LikesCount {
@@ -71,7 +71,7 @@ export default function DishesCreatedScreen({ navigation }) {
                     <Ionicons name="arrow-back" size={30} color="black" />
                 </TouchableOpacity>
                 <Image
-                    source={require('../../assets/COOKINDER.png')}
+                    source={require('../../../assets/COOKINDER.png')}
                     style={styles.logoImage}
                 />
             </View>
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 20,
     },
     header: {
         flexDirection: 'row',

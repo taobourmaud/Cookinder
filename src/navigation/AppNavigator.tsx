@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './TabNavigator';
-import CameraFunction from '../screens/takePicture.screen';
-import PhotoFormScreen from '../screens/photoForm.screen';
-import DishDetailScreen from '../screens/dish.details.screen';
-import DishesCreatedScreen from '../screens/dishes.created.screen';
+import CameraFunction from '../screens/tabs/takePicture.screen';
+import PhotoFormScreen from '../screens/tabs/photoForm.screen';
+import DishDetailScreen from '../screens/tabs/dish.details.screen';
+import DishesCreatedScreen from '../screens/tabs/dishes.created.screen';
 import SignInScreen from '../screens/tabs/auth/signIn.screen';
 import SignUpScreen from '../screens/tabs/auth/signUp.screen';
 import { AuthContext } from '../../authContext';

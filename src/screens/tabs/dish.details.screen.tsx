@@ -10,7 +10,7 @@ import {
     SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DishesModel } from '../_utils/models/dishes';
+import { DishesModel } from '../../_utils/models/dishes';
 
 export default function DishDetailScreen({ route, navigation }) {
     const { dishId, dishSelected, userData, tagsForDish } = route.params;
@@ -59,7 +59,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     <Ionicons name="arrow-back" size={30} color="black" />
                 </TouchableOpacity>
                 <Image
-                    source={require('../../assets/COOKINDER.png')}
+                    source={require('../../../assets/COOKINDER.png')}
                     style={styles.logoImage}
                 />
             </View>

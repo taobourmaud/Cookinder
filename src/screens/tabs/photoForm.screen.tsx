@@ -4,8 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../App';
-import { supabase } from '../../supabase';
+import { RootStackParamList } from '../../../App';
+import { supabase } from '../../../supabase';
 
 type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoForm'>;
 type PhotoFormRouteProp = RouteProp<RootStackParamList, 'PhotoForm'>;
@@ -126,7 +126,7 @@ export default function PhotoFormScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
-            source={require('../../assets/COOKINDER.png')}
+            source={require('../../../assets/COOKINDER.png')}
             style={styles.logoImage}
         />
       </View>
