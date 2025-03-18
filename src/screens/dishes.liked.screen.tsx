@@ -1,34 +1,33 @@
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
-    RefreshControl
-} from 'react-native';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import { getLikedDishesByUser, getNumberOfLikesDish, getTagsOfDish } from '../../services/dishesService';
+import {Image, StyleSheet, Text, SafeAreaView, View,} from 'react-native';
+import React, {useCallback, useContext, useState} from 'react';
+import { useFocusEffect, RouteProp } from '@react-navigation/native';
+import {
+    getLikedDishesByUser,
+    getNumberOfLikesDish,
+    getTagsOfDish
+} from '../../services/dishesService';
 import { AuthContext } from '../../authContext';
 import { DishesModel } from '../_utils/models/dishes';
-import { supabase } from '../../supabase';
-import { RouteProp } from '@react-navigation/native';
 import ApiHandler from '../_utils/api/apiHandler';
+import DishesList from "./components/dishes.list";
 
 type DishesScreenRouteProp = RouteProp<{ HomeScreen: { apiHandler: ApiHandler } }, 'HomeScreen'>;
 
 export default function DishesScreen({ route, navigation } : {route : DishesScreenRouteProp}) {
 
     const { userData } = useContext(AuthContext);
-    const { apiHandler } = route.params 
+    const { apiHandler } = route.params
     const userId = userData.id;
     const userDisplayName = userData.userMetadata.displayName
     const [dishes, setDishes] = useState<DishesModel[]>([]);
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
-    const [refreshing, setRefreshing] = useState(false);
 
     const fetchData = async () => {
         if (!userId) return;
 
         try {
-            setRefreshing(true);
             const data = await getLikedDishesByUser(userId);
-            
             setDishes(data);
 
             const dishLikesCount: { [key: string]: number } = {};
@@ -41,21 +40,16 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
 
             setLikesCount(dishLikesCount);
             setTagsCount(dishTagsCount);
-
         } catch (error) {
             console.error('Erreur lors de la récupération des recettes likées :', error.message);
-        }  finally {
-            setRefreshing(false);
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, [userId])
-
-    const onRefresh = useCallback(() => {
-        fetchData();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchData();
+        }, [])
+    );
 
     return (
             <SafeAreaView style={styles.container}>
@@ -66,44 +60,14 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
                     />
                 </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
                 <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
-                <FlatList
-                    style={styles.scrollContent}
-                    data={[...dishes].reverse()}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => {
-                        const dishId = item.dishes.id;
-                        const userDishCreator = item.dishes.username
-                        const likesForDish = likesCount[dishId];
-                        const tagsForDish = tagsCount[dishId];
-
-                        return (
-                            <TouchableOpacity
-                                style={styles.card}
-                                onPress={() => {
-                                    navigation.navigate('DishDetailScreen', {
-                                        dishSelected: item,
-                                        userData,
-                                        tagsForDish,
-                                    });
-                                }}
-                            >
-                                <View style={styles.card}>
-                                    <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
-                                    <View style={styles.info}>
-                                        <Text style={styles.title}>{item.dishes.title}</Text>
-                                        <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
-                                        <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
-                                        <Text style={styles.info}>Créé par : {userDishCreator}</Text>
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        );
-                    }}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
+                <DishesList
+                    navigation={navigation}
+                    dishes={dishes}
+                    userData={userData}
+                    likesCount={likesCount}
+                    tagsCount={tagsCount}
+                    isLikedList={true}
                 />
-
             </SafeAreaView>
     );
 }
@@ -124,11 +88,6 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
         marginLeft: 'auto',
     },
-    scrollContent: {
-        paddingBottom: 40,
-        paddingTop: 10,
-        paddingHorizontal: 10,
-    },
     headerDisplayName: {
         fontSize: 24,
         marginBottom: 20,
@@ -140,11 +99,24 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         paddingLeft: 10,
     },
+    scrollContent: {
+        paddingBottom: 40,
+        paddingTop: 10,
+        paddingHorizontal: 10,
+    },
+    cardContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#f0f0ff',
+        marginBottom: 10,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
     card: {
         flexDirection: 'row',
         backgroundColor: '#f0f0ff',
+        flex: 1,
         padding: 5,
-        marginBottom: 10,
         borderRadius: 15,
     },
     image: {
@@ -152,6 +124,8 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 10,
         backgroundColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
         marginLeft: 10,
@@ -160,5 +134,56 @@ const styles = StyleSheet.create({
     },
     info: {
         marginLeft: 10,
-    }
+        flex: 1,
+    },
+    deleteButton: {
+        backgroundColor: '#E57373',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 10,
+        width: 40,
+        height: 130,
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: 300,
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalText: {
+        fontSize: 18,
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    confirmButton: {
+        backgroundColor: '#D32F2F',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        marginRight: 10,
+    },
+    cancelButton: {
+        backgroundColor: '#777',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
 });
