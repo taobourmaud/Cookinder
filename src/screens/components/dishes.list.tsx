@@ -1,4 +1,12 @@
-import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { DishesModel } from '../../_utils/models/dishes';
 import Icon from "react-native-vector-icons/FontAwesome";
 import React, {useEffect, useState} from "react";
@@ -19,87 +27,95 @@ interface UserDishesListInterface {
 
 }
 
-const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLikedList}: UserDishesListInterface) => {
+const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLikedList, fetchData}: UserDishesListInterface) => {
 
-    const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [dishesList, setDishesList] = useState<DishesModel[]>([]);
-    const apiHandler = new ApiHandler()
+  const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [dishesList, setDishesList] = useState<DishesModel[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const apiHandler = new ApiHandler()
 
-    useEffect(() => {
-        setDishesList(dishes);
-    }, [dishes]);
+  useEffect(() => {
+      setDishesList(dishes);
+  }, [dishes]);
 
-    return (
-        <FlatList
-            style={styles.flatListContainer}
-            data={dishesList}
-            keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
-            renderItem={({ item }) => {
-                const dishId = item.dishes.id;
-                const likesForDish = dishId ? likesCount[dishId] : 0;
-                const tagsForDish = dishId ? tagsCount[dishId] : 0;
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
 
-                return (
-                    <View style={styles.cardContainer}>
-                        <TouchableOpacity
-                            style={styles.card}
-                            onPress={() => {
-                              navigation.navigate('DishDetailScreen', {
-                                dishSelected: item,
-                                userData,
-                                tagsForDish,
-                                dishesCreated: !isLikedList
-                              });
-                            }}
-                        >
-                            <View style={styles.card}>
-                                <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
-                                 <View style={styles.info}>
-                                    <Text style={styles.title}>{item.dishes.title}</Text>
-                                    <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
-                                     <Text style={styles.info}>{isLikedList ? `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty.title}` : `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty}` }</Text>
-                                    <Text style={styles.info}>{isLikedList ? `Crée par ${item.dishes.username}` : "Créé par vous"}  </Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => {
-                                setSelectedDishId(item.dishes.id);
-                                setModalVisible(true);
-                            }}
-                        >
-                            <Icon name="trash" size={20} color="white" />
-                        </TouchableOpacity>
-                        <ConfirmDeleteModal
-                            visible={modalVisible}
-                            onConfirm={async () => {
-                              if (selectedDishId) {
-                                try {
-                                  if (!isLikedList) {
-                                    await apiHandler.deleteDishByUser("dishes", selectedDishId, userData.id);
-                                  } else {
-                                    await apiHandler.deleteDishByUser("likes", selectedDishId, userData.id);
-                                  }
-                                  setDishesList(prevDishesList => prevDishesList.filter(dish => dish.dishes.id !== selectedDishId));
-                                } catch (error) {
-                                  console.error("Erreur lors de la suppression :", error);
+  return (
+      <FlatList
+          style={styles.flatListContainer}
+          data={dishesList}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
+          renderItem={({ item }) => {
+              const dishId = item.dishes.id;
+              const likesForDish = dishId ? likesCount[dishId] : 0;
+              const tagsForDish = dishId ? tagsCount[dishId] : 0;
+
+              return (
+                  <View style={styles.cardContainer}>
+                      <TouchableOpacity
+                          style={styles.card}
+                          onPress={() => {
+                            navigation.navigate('DishDetailScreen', {
+                              dishSelected: item,
+                              userData,
+                              tagsForDish,
+                              dishesCreated: !isLikedList
+                            });
+                          }}
+                      >
+                          <View style={styles.card}>
+                              <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
+                               <View style={styles.info}>
+                                  <Text style={styles.title}>{item.dishes.title}</Text>
+                                  <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
+                                   <Text style={styles.info}>{isLikedList ? `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty.title}` : `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty}` }</Text>
+                                  <Text style={styles.info}>{isLikedList ? `Crée par ${item.dishes.username}` : "Créé par vous"}  </Text>
+                              </View>
+                          </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                          style={styles.deleteButton}
+                          onPress={() => {
+                              setSelectedDishId(item.dishes.id);
+                              setModalVisible(true);
+                          }}
+                      >
+                          <Icon name="trash" size={20} color="white" />
+                      </TouchableOpacity>
+                      <ConfirmDeleteModal
+                          visible={modalVisible}
+                          onConfirm={async () => {
+                            if (selectedDishId) {
+                              try {
+                                if (!isLikedList) {
+                                  await apiHandler.deleteDishByUser("dishes", selectedDishId, userData.id);
+                                } else {
+                                  await apiHandler.deleteDishByUser("likes", selectedDishId, userData.id);
                                 }
+                                setDishesList(prevDishesList => prevDishesList.filter(dish => dish.dishes.id !== selectedDishId));
+                              } catch (error) {
+                                console.error("Erreur lors de la suppression :", error);
                               }
+                            }
+                            setModalVisible(false);
+                            setSelectedDishId(null);
+                          }}
+                          onCancel={() => {
                               setModalVisible(false);
                               setSelectedDishId(null);
-                            }}
-                            onCancel={() => {
-                                setModalVisible(false);
-                                setSelectedDishId(null);
-                            }}
-                        />
-                    </View>
-                );
-            }}
-        />
-    );
+                          }}
+                      />
+                  </View>
+              );
+          }}
+      />
+  );
 };
 
 const styles = StyleSheet.create({

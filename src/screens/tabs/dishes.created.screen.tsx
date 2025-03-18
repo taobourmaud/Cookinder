@@ -85,6 +85,7 @@ export default function DishesCreatedScreen({route} : {route : DishesCreatedScre
                 likesCount={likesCount}
                 tagsCount={tagsCount}
                 isLikedList={false}
+                fetchData={getDishesCreated}
             />
         </View>
     );

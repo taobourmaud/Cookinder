@@ -62,6 +62,7 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
                 likesCount={likesCount}
                 tagsCount={tagsCount}
                 isLikedList={true}
+                fetchData={fetchData}
             />
         </SafeAreaView>
     );
