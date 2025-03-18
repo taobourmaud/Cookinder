@@ -1,36 +1,31 @@
-import React, {useEffect, useState} from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    ScrollView,
-    TouchableOpacity,
-    ActivityIndicator,
-    SafeAreaView
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getLikedDishesByUser } from '../../services/dishesService';
+import { RootStackParamList } from '../../../App';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import difficulty from '../../_utils/interface/difficultyLevel';
+import { DishesModel } from '../../_utils/models/dishes';
 
-export default function DishDetailScreen({ route, navigation }) {
-    const { tagsForDish } = route.params;
-    const dishId = route.params.dishId;
-    const userId = route.params.userData.id
-    const [dish, setDish] = useState(null);
+type DishDetailNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
+type DishDetailScreenRouteProp = RouteProp<{ DishDetailScreen: { userData: object, tagsForDish: object[], dishSelected: object } }, 'DishDetailScreen'>;
 
-    const fetchDishDetails = async () => {
-        try {
-            const dishes = await getLikedDishesByUser(userId);
-            const selectedDish = dishes.find(item => item.dishes.id === dishId);
-            setDish(selectedDish ? selectedDish.dishes : null);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des détails du plat:', error);
-        }
-    };
+export default function DishDetailScreen({ route, navigation }: { route: DishDetailScreenRouteProp, navigation: DishDetailNavigationProp }) {
+    const { tagsForDish, dishSelected } = route.params;
+    const [dish, setDish] = useState<DishesModel | null>(null);
 
     useEffect(() => {
+        const fetchDishDetails = async () => {
+            try {
+                const selectedDish = dishSelected.dishes
+                setDish(selectedDish);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des détails du plat:', error);
+            }
+        };
+
         fetchDishDetails();
-    }, [dishId]);
+    }, []);
 
     if (!dish) {
         return (
@@ -42,20 +37,20 @@ export default function DishDetailScreen({ route, navigation }) {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="black" />
                 </TouchableOpacity>
                 <Image
-                    source={require('../../assets/COOKINDER.png')}
+                    source={require('../../../assets/COOKINDER.png')}
                     style={styles.logoImage}
                 />
             </View>
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <Image source={{ uri: dish.image_url }} style={styles.image} />
                 <Text style={styles.title}>{dish.title}</Text>
-                <Text style={styles.difficulty}>{dish.difficulty.title}</Text>
+                <Text style={styles.difficulty}>{difficulty[dish.difficulty] || dish.difficulty?.title}</Text>
                 {tagsForDish && tagsForDish.length > 0 ? (
                     <View style={styles.tagsContainer}>
                         {tagsForDish.map((tag, index) => (
@@ -95,7 +90,7 @@ export default function DishDetailScreen({ route, navigation }) {
                     <Text></Text>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 

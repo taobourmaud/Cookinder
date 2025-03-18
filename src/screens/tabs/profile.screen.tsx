@@ -5,14 +5,23 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { AuthContext } from '../../../authContext';
 import UserInfos from '../components/userInfos';
 import Button from '../components/inputs/button';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../App';
+import { RouteProp } from '@react-navigation/native';
+import ApiHandler from '../../_utils/api/apiHandler';
+
+type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'ProfileScreen'>;
+type ProfileScreenRouteProp = RouteProp<{ ProfileScreen: { apiHandler: ApiHandler } }, 'ProfileScreen'>;
 
 
-const ProfileScreen = () => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ route, navigation } : {route : ProfileScreenRouteProp}) => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const { apiHandler } = route.params
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [likes, setLikes] = useState<number | null>(null);
 
   const auth = useContext(AuthContext);
 
@@ -20,31 +29,18 @@ const ProfileScreen = () => {
 
   const { signOut } = auth;
 
-  async function getDishesCreated() {
-    const { data, error } = await supabase.from('dishes').select('*').eq('user_id', user?.id);
-
-    console.log(data);
-  }
-
   async function getUser() {
-    const { data, error } = await supabase.auth.getUser();
+    const user = await apiHandler.getUser()
 
-    if (error) {
-      console.error('Error fetching user:', error.message);
-      return;
-    }
-
-    if (data.user) {
-      setUser(data.user);
-      setEmail(data.user.email || '');
-      setDisplayName(data.user.user_metadata?.displayName || '');
-      setPhone(data.user.user_metadata.phone || '');
+    if (user) {
+      setUser(user);
+      setEmail(user.email || '');
+      setDisplayName(user.user_metadata?.displayName || '');
+      setPhone(user.user_metadata.phone || '');
     }
   }
 
-  useEffect(() => {
-    getUser()
-  }, [])
+  
 
   async function updateUser() {
     if (!user) return;
@@ -60,6 +56,38 @@ const ProfileScreen = () => {
       setIsEditing(false);
     }
   }
+
+  async function getNumberOfLikes() {
+    const { data: dishes, error: dishesError } = await supabase
+      .from('dishes')
+      .select('id')
+      .eq('user_id', user?.id);
+
+      if (dishesError) {
+        console.error('Erreur lors de la récupération des plats:', dishesError.message);
+      } else if (dishes.length === 0) {
+        console.log("L'utilisateur n'a créé aucun plat.");
+      } else {
+      const dishIds = dishes.map(dish => dish.id); 
+
+      const { count, error: likesError } = await supabase
+        .from('likes')
+        .select('id', { count: 'exact', head: true })
+        .in('dish_id', dishIds);
+
+      if (likesError) {
+        console.error('Erreur lors de la récupération des likes:', likesError.message);
+      }
+      setLikes(count);
+    }
+  }
+
+  useEffect(() => {
+    getUser();
+    if (user?.id) {
+      getNumberOfLikes();
+    }
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -115,12 +143,11 @@ const ProfileScreen = () => {
       </View>
       <View style={styles.recipeCreated}>
         <View style={styles.recipeContainer}>
-        {/* TODO Chopper tous les likes reçus par l'utilisateur */}
           <Image
             style={styles.recipeImage}
             source={require("../../../assets/images/like.png")}
           />
-            <Text style={styles.recipeText}>Like reçus : 20</Text>
+            <Text style={styles.recipeText}>Like reçus : {likes ?? 0}</Text>
         </View>
       </View>
       <View style={styles.recipeCreated}>
@@ -129,8 +156,10 @@ const ProfileScreen = () => {
             style={styles.recipeImage}
             source={require("../../../assets/images/recipe.png")}
           />
-          {/* TODO Rediriger vers toutes les recettes crées par l'utilisateur */}
-          <TouchableOpacity onPress={getDishesCreated}>          
+          
+          <TouchableOpacity
+            onPress={() => { navigation.navigate('DishesCreatedScreen', { apiHandler: apiHandler }); }}
+          >
             <Text style={styles.recipeText}>Recettes créées</Text>
           </TouchableOpacity>
         </View>

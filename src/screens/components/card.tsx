@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
-import { DishesModel } from "../models/dishes";
+import { DishesModel } from "../../_utils/models/dishes";
+import difficulty from "../../_utils/interface/difficultyLevel";
 
 
 export const Card = (dishes: {image: DishesModel}) => {
@@ -9,7 +10,7 @@ export const Card = (dishes: {image: DishesModel}) => {
             <ImageBackground source={{ uri: dish.image_url }} style={styles.image} imageStyle={styles.imageStyle}>
                 <View style={styles.difficulty}>
                     {/* TODO Change difficulty value by API data */}
-                    <Text style={styles.textDifficulty}>Difficile</Text>
+                    <Text style={styles.textDifficulty}>{difficulty[dish?.difficulty]}</Text>
                 </View>
                 <View style={styles.description}>
                     <Text style={styles.text}>{dish.title}</Text>

@@ -1,9 +1,9 @@
 import { View, StyleSheet, Text } from "react-native"
 import Swiper from "react-native-deck-swiper"
 import { Card } from "./card"
-import { DishesModel } from "../models/dishes"
-import ApiHandler from "../api/apiHandler"
-import { LikesModel } from "../models/likes"
+import { DishesModel } from "../../_utils/models/dishes"
+import ApiHandler from "../../_utils/api/apiHandler"
+import { LikesModel } from "../../_utils/models/likes"
 
 export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHandler: ApiHandler}) => {
     const onLeftSwipe = (cardIndex: number) => {
@@ -37,7 +37,7 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
                       title: '👎🏻',
                       style: {
                         label: {
-                          backgroundColor: '#ec200f',
+                          backgroundColor: 'rgba(236, 32, 15, 0.6)',
                           color: 'white',
                           fontSize: 24,
                         },
@@ -54,7 +54,7 @@ export const MySwipper = ({dishes, apiHandler} : {dishes: DishesModel[], apiHand
                       title: '🤍',
                       style: {
                         label: {
-                          backgroundColor: '#07d90a',
+                          backgroundColor: 'rgba(7, 217, 10, 0.6)',
                           color: 'white',
                           fontSize: 24,
                         },
