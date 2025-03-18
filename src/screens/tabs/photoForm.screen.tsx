@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Button } from 'react-native';
+import { View, Text, TextInput, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../../App';
@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TagsModel } from '../../_utils/models/tags';
 import { Picker } from '@react-native-picker/picker';
 import { DishesTagModel } from '../../_utils/models/dishes_tag';
+import Button from '../components/inputs/button';
 
 
 type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'PhotoForm'>;
@@ -134,15 +135,27 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
               value={title}
               onChangeText={setTitle}
             />
-            <Picker
-              selectedValue={selectedTag}
-              onValueChange={(newTags) => setSelectedTag(newTags)}
+            <View>
+              <TextInput 
               style={styles.input}
-            >
-              {tagsOption.map((item) => (
-                <Picker.Item key={item.id} label={item.title} value={item.id?.toString()} />
-              ))}
-            </Picker>
+              placeholder='Description'
+              value={description}
+              onChangeText={setDescription}
+              multiline={true}
+              />
+            </View>
+            <View style={{height: 140, borderColor: '#FFD700', borderWidth: 1, borderRadius: 10, overflow: 'hidden', marginBottom: 20}}>
+              <Picker
+                selectedValue={selectedTag}
+                onValueChange={(newTags) => setSelectedTag(newTags)}
+                style={{height: 100, width: '100%'}}
+                itemStyle={{height: 140}}
+              >
+                {tagsOption.map((item) => (
+                  <Picker.Item key={item.id} label={item.title} value={item.id?.toString()} />
+                ))}
+              </Picker>
+            </View>
             <View style={styles.toggleContainer}>
               {['Facile', 'Intermédiaire', 'Difficile'].map(level => (
                 <TouchableOpacity
@@ -213,16 +226,13 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
                 scrollEnabled={false}
               />
             </View>
-            <View>
-              <TextInput 
-              style={styles.input}
-              placeholder='Description'
-              value={description}
-              onChangeText={setDescription}
-              multiline={true}
-              />
-            </View>
-            <Button title='Ajouter ce plat !' accessibilityLabel="Ajouter ce plat !" onPress={handleSubmit} color="#FFD700"/>
+            
+          </View>
+          <View
+
+            style={styles.buttonContainer}
+          >
+            <Button title='Ajouter ce plat !' onPress={handleSubmit} color="#FFD700"/>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -233,7 +243,7 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: '#fff',
   },
   keyboardAvoidingView: {
@@ -252,8 +262,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end', 
     alignItems: 'flex-end', 
-    paddingHorizontal: 20,
-    paddingTop: 10,
   },
   textHeader: {
     fontSize: 20,
@@ -423,4 +431,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
   },
+  buttonContainer : {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 70,
+  }
 });
