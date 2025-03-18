@@ -1,64 +1,45 @@
+import {Image, StyleSheet, Text, SafeAreaView, View,} from 'react-native';
+import React, {useCallback, useContext, useState} from 'react';
+import { useFocusEffect, RouteProp } from '@react-navigation/native';
 import {
-    FlatList, Image, StyleSheet, Text, TouchableOpacity, SafeAreaView, View,
-    RefreshControl, Modal
-} from 'react-native';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-    getLikedDishesByUser,
-    getNumberOfLikesDish,
-    getTagsOfDish,
-    deleteDishByUser
-} from '../../../services/dishesService';
-import Icon from 'react-native-vector-icons/FontAwesome';
+    getTagsOfDish
+} from '../../services/dishesService';
 import { AuthContext } from '../../../authContext';
 import { DishesModel } from '../../_utils/models/dishes';
-import { RouteProp } from '@react-navigation/native';
 import ApiHandler from '../../_utils/api/apiHandler';
-import ConfirmDeleteModal from "../components/confirmDeleteModal";
 import { RequestFilter } from '../../_utils/models/requestFilter';
-import { LikesModel } from '../../_utils/models/likes';
+import DishesList from '../components/dishes.list';
 
 type DishesScreenRouteProp = RouteProp<{ DishesScreen: { apiHandler: ApiHandler } }, 'DishesScreen'>;
 
 export default function DishesScreen({ route, navigation } : {route : DishesScreenRouteProp}) {
     const { userData } = useContext(AuthContext);
-    const { apiHandler } = route.params 
+    const { apiHandler } = route.params
     const userId = userData.id;
     const userDisplayName = userData.userMetadata.displayName
     const [dishes, setDishes] = useState<DishesModel[]>([]);
     const [likesCount, setLikesCount] = useState<{ [key: string]: number }>({});
     const [tagsCount, setTagsCount] = useState({});
-    const [refreshing, setRefreshing] = useState(false);
-
-    const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
-    const [modalVisible, setModalVisible] = useState(false);
 
     const fetchData = async () => {
         if (!userId) return;
 
         try {
-            setRefreshing(true);
-            const data = await getLikedDishesByUser(userId);
-            
+            const data = await  apiHandler.getLikesDishesByUser(userId);
             setDishes(data);
 
             const dishLikesCount: { [key: string]: number } = {};
             const dishTagsCount = {};
 
             for (let dish of data) {
-                // dishLikesCount[dish.dishes.id] = await getNumberOfLikesDish(dish.dishes.id);
                 dishLikesCount[dish.dishes.id] = (await apiHandler.getData({targetTable: 'likes', conditionsEq: new RequestFilter('dish_id', dish.dishes.id) })).length;
-                dishTagsCount[dish.dishes.id] = await getTagsOfDish(dish.dishes.id);
+                dishTagsCount[dish.dishes.id] = await apiHandler.getTagsOfDish(dish.dishes.id);
             }
 
             setLikesCount(dishLikesCount);
             setTagsCount(dishTagsCount);
-
-        } catch (error) {
+        } catch (error: Error | any) {
             console.error('Erreur lors de la récupération des recettes likées :', error.message);
-        }  finally {
-            setRefreshing(false);
         }
     };
 
@@ -67,17 +48,6 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
             fetchData();
         }, [])
     );
-
-    const onRefresh = useCallback(() => {
-        fetchData();
-    }, []);
-
-    const handleDeleteDish = async (table, dishId, userId) => {
-        const response = await deleteDishByUser(table, dishId, userId);
-        if (response.success) {
-            fetchData();
-        }
-    };
 
     return (
             <SafeAreaView style={styles.container}>
@@ -88,70 +58,14 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
                     />
                 </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
                 <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
-                <FlatList
-                    style={styles.scrollContent}
-                    data={[...dishes].reverse()}
-                    keyExtractor={(item) => item.dishes.id}
-                    renderItem={({ item }) => {
-                        const dishId = item.dishes.id;
-                        const userDishCreator = item.dishes.username
-                        const likesForDish = likesCount[dishId];
-                        const tagsForDish = tagsCount[dishId];
-
-                        return (
-                            <View style={styles.cardContainer}>
-                                <TouchableOpacity
-                                    style={styles.card}
-                                    onPress={() => {
-                                        navigation.navigate('DishDetailScreen', {
-                                            dishSelected: item,
-                                            userData,
-                                            tagsForDish,
-                                            apiHandler
-                                        });
-                                    }}
-                                >
-                                    <View style={styles.card}>
-                                        <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
-                                        <View style={styles.info}>
-                                            <Text style={styles.title}>{item.dishes.title}</Text>
-                                            <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
-                                            <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.dishes.difficulty.title}</Text>
-                                            <Text style={styles.info}>Créé par : {userDishCreator}</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={styles.deleteButton}
-                                    onPress={() => {
-                                        setSelectedDishId(dishId);
-                                        setModalVisible(true);
-                                    }}
-                                >
-                                    <Icon name="trash" size={20} color="white" />
-                                </TouchableOpacity>
-                                <ConfirmDeleteModal
-                                    visible={modalVisible}
-                                    onConfirm={() => {
-                                        if (selectedDishId) {
-                                            handleDeleteDish("likes", selectedDishId, userData.id);
-                                        }
-                                        setModalVisible(false);
-                                        setSelectedDishId(null);
-                                    }}
-                                    onCancel={() => {
-                                        setModalVisible(false);
-                                        setSelectedDishId(null);
-                                    }}
-                                />
-                                </View>
-                        );
-                    }}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
+                <DishesList
+                    navigation={navigation}
+                    dishes={dishes}
+                    userData={userData}
+                    likesCount={likesCount}
+                    tagsCount={tagsCount}
+                    isLikedList={true}
                 />
-
             </SafeAreaView>
     );
 }

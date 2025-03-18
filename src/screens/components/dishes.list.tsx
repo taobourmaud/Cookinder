@@ -1,11 +1,9 @@
 import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { DishesModel } from '../../_utils/models/dishes';
 import Icon from "react-native-vector-icons/FontAwesome";
-import React, { useEffect, useState} from "react";
-import ConfirmDeleteModal from "./confirmDeleteModal";
-import {deleteDishByUser} from "../../../services/dishesService";
+import React, {useEffect, useState} from "react";
+import ConfirmDeleteModal from "../components/confirmDeleteModal";
 import ApiHandler from '../../_utils/api/apiHandler';
-
 
 interface UserDishesListInterface {
     navigation: any;
@@ -17,31 +15,27 @@ interface UserDishesListInterface {
     tagsCount: {
         [key: string]: string[];
     };
-    userDishCreated: string;
-    apiHandler: ApiHandler;
+    isLikedList: boolean
 
 }
 
-const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, userDishCreated, apiHandler}: UserDishesListInterface) => {
+const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, isLikedList}: UserDishesListInterface) => {
 
     const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [dishesList, setDishesList] = useState<DishesModel[]>([]);
+    const apiHandler = new ApiHandler()
 
     useEffect(() => {
         setDishesList(dishes);
     }, [dishes]);
-
-    const refreshDishesList = (deletedDishId: string) => {
-        setDishesList(prevDishesList => prevDishesList.filter(dish => dish.id !== deletedDishId));
-    };
 
     return (
         <FlatList
             data={dishesList}
             keyExtractor={(item, index) => item.id?.toString() ?? index.toString()}
             renderItem={({ item }) => {
-                const dishId = item.id;
+                const dishId = item.dishes.id;
                 const likesForDish = dishId ? likesCount[dishId] : 0;
                 const tagsForDish = dishId ? tagsCount[dishId] : 0;
 
@@ -54,18 +48,17 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, userD
                                 dishSelected: item,
                                 userData,
                                 tagsForDish,
-                                dishesCreated: true,
-                                apiHandler: apiHandler
+                                dishesCreated: !isLikedList
                               });
                             }}
                         >
                             <View style={styles.card}>
-                                <Image source={{ uri: item.image_url }} style={styles.image} />
+                                <Image source={{ uri: item.dishes.image_url }} style={styles.image} />
                                  <View style={styles.info}>
                                     <Text style={styles.title}>{item.dishes.title}</Text>
                                     <Text style={styles.info}>Tags : {tagsForDish && tagsForDish.length > 0 ? tagsForDish.join(', ') : 'Aucun tag'}</Text>
-                                    <Text style={styles.info}>Liké par : {likesForDish} personnes | {item.difficulty}</Text>
-                                    <Text style={styles.info}>Créé par vous</Text>
+                                     <Text style={styles.info}>{isLikedList ? `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty.title}` : `Liké par : ${likesForDish} personnes | ${item.dishes.difficulty}` }</Text>
+                                    <Text style={styles.info}>{isLikedList ? `Crée par ${item.dishes.username}` : "Créé par vous"}  </Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -80,13 +73,21 @@ const DishesList = ({ navigation, dishes, userData, likesCount, tagsCount, userD
                         </TouchableOpacity>
                         <ConfirmDeleteModal
                             visible={modalVisible}
-                            onConfirm={() => {
-                                if (selectedDishId) {
-                                    deleteDishByUser("dishes", selectedDishId, userData.id);
-                                    refreshDishesList(selectedDishId);
+                            onConfirm={async () => {
+                              if (selectedDishId) {
+                                try {
+                                  if (!isLikedList) {
+                                    await apiHandler.deleteDishByUser("dishes", selectedDishId, userData.id);
+                                  } else {
+                                    await apiHandler.deleteDishByUser("likes", selectedDishId, userData.id);
+                                  }
+                                  setDishesList(prevDishesList => prevDishesList.filter(dish => dish.dishes.id !== selectedDishId));
+                                } catch (error) {
+                                  console.error("Erreur lors de la suppression :", error);
                                 }
-                                setModalVisible(false);
-                                setSelectedDishId(null);
+                              }
+                              setModalVisible(false);
+                              setSelectedDishId(null);
                             }}
                             onCancel={() => {
                                 setModalVisible(false);
@@ -112,8 +113,8 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         backgroundColor: '#f0f0ff',
-        padding: 5,
-        borderRadius: 15,
+        padding: 10,
+        borderRadius: 15
     },
     image: {
         width: 80,
@@ -135,9 +136,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 10,
         width: 40,
-        height: 130,
+        height: 40,
+        marginRight: 10
     },
 });
 

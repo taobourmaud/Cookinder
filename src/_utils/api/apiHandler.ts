@@ -59,17 +59,6 @@ export default class ApiHandler {
         }
     }
 
-    public async deleteData(targetTable: string, id: string) {
-        try {
-            const response = await supabase.from(targetTable).delete().eq('id', id)
-            if (response.status !== 204) {
-                throw new Error(`Error during delete data : ${response.statusText}`)
-            }
-        } catch (error: Error | any) {
-            throw new Error(error.message)
-        }
-    }
-
     public async uploadImage(fileName: string, imageUri: string) {
         try {
             const { data: imageUploaded, error: uploadError } = await supabase.storage
@@ -89,6 +78,35 @@ export default class ApiHandler {
             throw new Error(error.message)
         }  
     }
+
+    public async deleteDishByUser (table: string, dishId: string, userId: string) {
+        try {
+            const { data: existingDish, error: fetchError } = await supabase
+                .from(table)
+                .select('id')
+                .eq(`${table === 'dishes' ? 'id' : 'dish_id'}`, dishId)
+                .eq('user_id', userId)
+                .single();
+    
+            if (fetchError) throw fetchError;
+    
+            if (!existingDish) {
+                console.warn(`Aucun élément trouvé dans '${table}' pour cet utilisateur.`);
+                return { success: false, message: `Aucun élément trouvé.` };
+            }
+    
+            const { error: deleteError } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', existingDish.id);
+    
+            if (deleteError) throw new Error(deleteError.message);
+    
+            return { success: true, message: "Élément supprimé avec succès." };
+        } catch (error: Error | any) {
+            throw new Error(error.message)
+        }
+    }; 
 
     public async getLikesDishesByUser(userId: string) {
         try {
@@ -125,7 +143,7 @@ export default class ApiHandler {
         }
     }
 
-    public async getTagOfDish(dishId: string) {
+    public async getTagsOfDish(dishId: string) {
         try {
             const { data, error } = await supabase
                 .from('dishes_tags')

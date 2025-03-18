@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import DishesList from "../components/dishes.list";
-import { supabase } from "../../../supabase";
 import { AuthContext } from "../../../authContext";
 import { DishesModel } from "../../_utils/models/dishes";
 import {View, Text, StyleSheet, Image, TouchableOpacity} from "react-native";
-import { getNumberOfLikesDish, getTagsOfDish } from '../../../services/dishesService';
 import {Ionicons} from "@expo/vector-icons";
 import { RequestFilter } from "../../_utils/models/requestFilter";
 import ApiHandler from "../../_utils/api/apiHandler";
@@ -49,16 +47,15 @@ export default function DishesCreatedScreen({route} : {route : DishesCreatedScre
                     const dish = item.dishes;
                     if (dish && dish.id) { 
                         dishLikesCount[dish.id] = (await apiHandler.getData({targetTable: 'likes', conditionsEq: new RequestFilter('dish_id', dish.id) })).length;
-                        dishTagsCount[dish.id] = await apiHandler.getTagOfDish(dish.id)
+                        dishTagsCount[dish.id] = await apiHandler.getTagsOfDish(dish.id)
                     } else {
                         console.warn('Dish or dish.id is undefined:', dish);
                     }
                 }
-    
                 setLikesCount(dishLikesCount);
                 setTagsCount(dishTagsCount);
             }
-        } catch (error) {
+        } catch (error: Error | any) {
             console.error('Erreur lors de la récupération des recettes créées :', error.message);
         }
     }
@@ -87,7 +84,7 @@ export default function DishesCreatedScreen({route} : {route : DishesCreatedScre
                 userData={userData}
                 likesCount={likesCount}
                 tagsCount={tagsCount}
-                apiHandler={apiHandler}
+                isLikedList={false}
             />
         </View>
     );

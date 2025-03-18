@@ -4,19 +4,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../../../App';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import difficulty from '../../_utils/interface/difficultyLevel';
+import { DishesModel } from '../../_utils/models/dishes';
 
 type DishDetailNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
 type DishDetailScreenRouteProp = RouteProp<{ DishDetailScreen: { userData: object, tagsForDish: object[], dishSelected: object } }, 'DishDetailScreen'>;
 
 export default function DishDetailScreen({ route, navigation }: { route: DishDetailScreenRouteProp, navigation: DishDetailNavigationProp }) {
     const { tagsForDish, dishSelected } = route.params;
-    const [dish, setDish] = useState(null);
+    const [dish, setDish] = useState<DishesModel | null>(null);
 
     useEffect(() => {
         const fetchDishDetails = async () => {
             try {
                 const selectedDish = dishSelected.dishes
-                setDish(selectedDish ? selectedDish.dishes : null);
+                setDish(selectedDish);
             } catch (error) {
                 console.error('Erreur lors de la récupération des détails du plat:', error);
             }
@@ -48,7 +50,7 @@ export default function DishDetailScreen({ route, navigation }: { route: DishDet
             <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <Image source={{ uri: dish.image_url }} style={styles.image} />
                 <Text style={styles.title}>{dish.title}</Text>
-                <Text style={styles.difficulty}>{dish.difficulty.title}</Text>
+                <Text style={styles.difficulty}>{difficulty[dish.difficulty] || dish.difficulty?.title}</Text>
                 {tagsForDish && tagsForDish.length > 0 ? (
                     <View style={styles.tagsContainer}>
                         {tagsForDish.map((tag, index) => (
