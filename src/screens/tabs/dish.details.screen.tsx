@@ -4,22 +4,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../../../App';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { getLikedDishesByUser } from '../../../services/dishesService';
 
-type PhotoFormNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
-type PhotoFormRouteProp = RouteProp<RootStackParamList, 'DishDetailScreen'>;
+type DishDetailNavigationProp = StackNavigationProp<RootStackParamList, 'DishDetailScreen'>;
+type DishDetailScreenRouteProp = RouteProp<{ DishDetailScreen: { userData: object, tagsForDish: object[], dishSelected: object } }, 'DishDetailScreen'>;
 
-export default function DishDetailScreen({ route, navigation }) {
-    const { tagsForDish } = route.params;
-    const dishId = route.params.dishId;
-    const userId = route.params.userData.id
+export default function DishDetailScreen({ route, navigation }: { route: DishDetailScreenRouteProp, navigation: DishDetailNavigationProp }) {
+    const { tagsForDish, dishSelected } = route.params;
     const [dish, setDish] = useState(null);
 
     useEffect(() => {
         const fetchDishDetails = async () => {
             try {
-                const dishes = await getLikedDishesByUser(userId);
-                const selectedDish = dishes.find(item => item.dishes.id === dishId);
+                const selectedDish = dishSelected.dishes
                 setDish(selectedDish ? selectedDish.dishes : null);
             } catch (error) {
                 console.error('Erreur lors de la récupération des détails du plat:', error);
@@ -27,7 +23,7 @@ export default function DishDetailScreen({ route, navigation }) {
         };
 
         fetchDishDetails();
-    }, [dishId]);
+    }, []);
 
     if (!dish) {
         return (

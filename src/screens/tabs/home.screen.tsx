@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import { StyleSheet, Image, Text, View, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { DishesModel } from '../../_utils/models/dishes';
 import { MySwipper } from '../components/swipper';

@@ -23,7 +23,7 @@ export default class ApiHandler {
         }
     }
 
-    public async getData({targetTable, conditionsEq = null, conditionsIn = null}: {targetTable: string, conditionsEq?: RequestFilter | null, conditionsIn?: RequestFilter | null, conditionsNotIn?: RequestFilter | null}) : Promise<DifficultiesModel[] | DishesTagModel[] | DishesModel[] | LikesModel[] | TagsModel[] | []> {
+    public async getData({targetTable, targetColumn = null, conditionsEq = null, conditionsIn = null}: {targetTable: string, targetColumn?: string | null, conditionsEq?: RequestFilter | null, conditionsIn?: RequestFilter | null, conditionsNotIn?: RequestFilter | null}) : Promise<DifficultiesModel[] | DishesTagModel[] | DishesModel[] | LikesModel[] | TagsModel[] | []> {
         try {
             let dataFetch = supabase.from(targetTable).select();
             if (conditionsIn !== null) {
@@ -65,7 +65,6 @@ export default class ApiHandler {
             if (response.status !== 204) {
                 throw new Error(`Error during delete data : ${response.statusText}`)
             }
-            return
         } catch (error: Error | any) {
             throw new Error(error.message)
         }
@@ -88,7 +87,61 @@ export default class ApiHandler {
           return imageUploaded
         } catch (error: Error | any) {
             throw new Error(error.message)
+        }  
+    }
+
+    public async getLikesDishesByUser(userId: string) {
+        try {
+            const { data, error } = await supabase
+                .from('likes')
+                .select(`
+                    id,
+                    dishes: dish_id (
+                        id,
+                        title,
+                        description,
+                        ingredients,
+                        instructions,
+                        cooking_time,
+                        number_persons,
+                        difficulty: difficulties (
+                            id,
+                            title
+                        ),
+                        image_url,
+                        created_at,
+                        user_id,
+                        username
+                    )
+                `)
+                .eq('user_id', userId);
+    
+            if (error) 
+                throw new Error(error.message);
+    
+            return data;
+        } catch (error: Error | any) {
+            throw new Error(error.message);
         }
-           
+    }
+
+    public async getTagOfDish(dishId: string) {
+        try {
+            const { data, error } = await supabase
+                .from('dishes_tags')
+                .select(`
+                    tags: tag_id (
+                        id,
+                        title
+                    )
+                `)
+                .eq('dish_id', dishId);
+            if (error) 
+                throw new Error(error.message);
+    
+            return data?data.map(tag => tag.tags.title) : [];
+        } catch (error: Error | any) {
+            throw new Error(error.message);
+        }
     }
 } 

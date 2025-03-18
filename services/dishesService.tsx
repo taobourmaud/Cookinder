@@ -72,4 +72,35 @@ export const getTagsOfDish= async (dishId: string) => {
     }
 };
 
+export const deleteDishByUser = async (table: string, dishId: string, userId: string) => {
+    try {
+        const { data: existingDish, error: fetchError } = await supabase
+            .from(table)
+            .select('id')
+            .eq(`${table === 'dishes' ? 'id' : 'dish_id'}`, dishId)
+            .eq('user_id', userId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        if (!existingDish) {
+            console.warn(`Aucun élément trouvé dans '${table}' pour cet utilisateur.`);
+            return { success: false, message: `Aucun élément trouvé.` };
+        }
+
+        const { error: deleteError } = await supabase
+            .from(table)
+            .delete()
+            .eq('id', existingDish.id);
+
+        if (deleteError) throw deleteError;
+
+        console.log(`Élément supprimé avec succès de '${table}'.`);
+        return { success: true, message: "Élément supprimé avec succès." };
+    } catch (error) {
+        console.error(`Erreur lors de la suppression dans '${table}' :`, error.message);
+        return { success: false, message: error.message };
+    }
+};
+
 

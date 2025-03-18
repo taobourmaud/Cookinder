@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
-import { DishesModel } from "../models/dishes";
+import { DishesModel } from "../../_utils/models/dishes";
 
 
 export const Card = (dishes: {image: DishesModel}) => {

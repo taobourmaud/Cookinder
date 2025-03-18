@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AuthContext, AuthProvider } from './authContext';
 import { Image, View, StyleSheet } from 'react-native';
 import SCREENS from './src/screens';
-import LikeRecipeScreen from './src/screens/tabs/like-recipe.screen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -18,6 +17,7 @@ import CameraFunction from './src/screens/tabs/takePicture.screen';
 import PhotoFormScreen from './src/screens/tabs/photoForm.screen';
 import DishesScreen from './src/screens/tabs/dishes.screen';
 import DishDetailScreen from './src/screens/tabs/dish.details.screen';
+import DishesCreatedScreen from './src/screens/tabs/dishes-created.screen';
 
 export type RootStackParamList = {
   HomeScreen: undefined;
@@ -26,6 +26,9 @@ export type RootStackParamList = {
   TakePicture: undefined;
   PhotoForm: { imageUri: string, apiHandler: ApiHandler };
   DishDetailScreen: undefined
+  ProfileScreen: undefined;
+  DishesScreen: undefined;
+  DishesCreatedScreen: undefined;
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -85,6 +88,7 @@ const TabNavigator: React.FC = () => {
         <Tab.Screen
           name={SCREENS.RECIPE_LIKED}
           component={DishesScreen}
+          initialParams={{ apiHandler }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -101,8 +105,9 @@ const TabNavigator: React.FC = () => {
           }}
         />
         <Tab.Screen
-          name="Profile"
+          name={SCREENS.PROFILE}
           component={ProfileScreen}
+          initialParams={{ apiHandler }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => (
@@ -142,6 +147,7 @@ const AppNavigator: React.FC = () => {
           <Stack.Screen name="TakePicture" component={CameraFunction} /> 
           <Stack.Screen name="PhotoForm" component={PhotoFormScreen} />
           <Stack.Screen name="DishDetailScreen" component={DishDetailScreen} />
+          <Stack.Screen name="DishesCreatedScreen" component={DishesCreatedScreen} />
         </>
       ) : (
         <>
