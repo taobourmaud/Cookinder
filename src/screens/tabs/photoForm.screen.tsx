@@ -140,7 +140,7 @@ export default function PhotoFormScreen({routes} : {routes : HomeScreenRouteProp
               style={styles.input}
             >
               {tagsOption.map((item) => (
-                <Picker.Item key={item.id} label={item.title} value={item.id} />
+                <Picker.Item key={item.id} label={item.title} value={item.id?.toString()} />
               ))}
             </Picker>
             <View style={styles.toggleContainer}>

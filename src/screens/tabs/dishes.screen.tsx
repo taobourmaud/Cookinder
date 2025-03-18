@@ -1,22 +1,11 @@
 import {Image, StyleSheet, Text, SafeAreaView, View,} from 'react-native';
 import React, {useCallback, useContext, useState} from 'react';
 import { useFocusEffect, RouteProp } from '@react-navigation/native';
-import {
-    getTagsOfDish
-<<<<<<<< HEAD:src/screens/tabs/dishes.liked.screen.tsx
-} from '../../../services/dishesService';
 import { AuthContext } from '../../../authContext';
 import { DishesModel } from '../../_utils/models/dishes';
 import ApiHandler from '../../_utils/api/apiHandler';
 import DishesList from "../components/dishes.list";
-========
-} from '../../services/dishesService';
-import { AuthContext } from '../../../authContext';
-import { DishesModel } from '../../_utils/models/dishes';
-import ApiHandler from '../../_utils/api/apiHandler';
 import { RequestFilter } from '../../_utils/models/requestFilter';
-import DishesList from '../components/dishes.list';
->>>>>>>> refactor:src/screens/tabs/dishes.screen.tsx
 
 type DishesScreenRouteProp = RouteProp<{ DishesScreen: { apiHandler: ApiHandler } }, 'DishesScreen'>;
 
@@ -58,30 +47,12 @@ export default function DishesScreen({ route, navigation } : {route : DishesScre
     );
 
     return (
-<<<<<<<< HEAD:src/screens/tabs/dishes.liked.screen.tsx
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <Image
                     source={require('../../../assets/COOKINDER.png')}
                     style={styles.logoImage}
-========
-            <SafeAreaView style={styles.container}>
-                <View style={styles.header}>
-                    <Image
-                        source={require('../../../assets/COOKINDER.png')}
-                        style={styles.logoImage}
-                    />
-                </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
-                <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
-                <DishesList
-                    navigation={navigation}
-                    dishes={dishes}
-                    userData={userData}
-                    likesCount={likesCount}
-                    tagsCount={tagsCount}
-                    isLikedList={true}
->>>>>>>> refactor:src/screens/tabs/dishes.screen.tsx
-                />
+            />           
             </View><Text style={styles.headerDisplayName}>{userDisplayName}, voici tes plats préférés !</Text>
             <Text style={styles.subHeader}>Consulte les plats que tu as enregistrés !</Text>
             <DishesList
