@@ -95,10 +95,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        paddingVertical: 40,
     },
     header: {
         flexDirection: 'row',
-        paddingVertical: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
     },
     logoImage: {
         width: 120,
