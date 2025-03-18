@@ -47,7 +47,7 @@ export default function HomeScreen({route} : {route : HomeScreenRouteProp}) {
         }
         setDishes(dishes as DishesModel[])
         setTags(tags as TagsModel[])
-        setUsername(user.app_metadata.provider)
+        setUsername(user.user_metadata.displayName)
       } catch (error: Error | any) {
         console.error(error.message)
       } finally {
